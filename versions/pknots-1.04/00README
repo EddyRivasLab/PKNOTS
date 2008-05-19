@@ -1,0 +1,32 @@
+Fri Jul  9 10:06:09 CDT 2004
+
+Reported discrepancy of results in paper with those of v1.03. 
+(see file Q.txt)
+
+TYMV showed the pks and a free enegy of -30.4 kcal/mol in paper (~/knots/ouput/TYMV.out)
+
+in version 1.03 does not show the pk and the free energy is -29.6 Kcal/mol
+
+The problem is that originaly I used a SGI compiler, and now I have
+some rounding errors of the kind:
+
+
+Created function IntizeScale to correct that behaviour.
+
+
+
+		 in paper	     in ~/knots/output		1.04(P3=0.0)	1.4(P3=3.0)
+-----------------------------------------------------------------------------------------
+DA0260		-24.3			-24.3			-25.5*		-25.5*
+TYMV		-30.4			-30.4			-30.4		-30.4
+OYMV					-25.9			-25.9		-25.9			
+CYVV					-27.5			-27.5		-27.5
+CcTMV					-37.9			-37.9		-37.9			
+APLV					-21.3			-22.4*		-21.3
+EMV					-26.8			-28.0*		-26.8
+KYMV					-28.9			-31.1*		-28.9
+TMVup		-19.0			-23.8*			-24.4*(same ss)	-19.4*(almost same ss)
+TMVdown		-32.5			-32.5			-32.8*		-32.5
+HDV_anti	-36.7			-36.7			-37.0*		-36.1*(same ss)
+HDV		-43.9			-43.9			-44.0*		-43.9
+HIV_I-3-2	-9.0			-10.9*			-10.9*		-10.9*

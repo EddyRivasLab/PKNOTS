@@ -1,0 +1,201 @@
+NAM  HIVRT_II.3-21
+SRC  HIVRT_II.3-21 - 0..34::35
+SEQ  +SS
+UCAAGUAUUCCGAAGGGUAA 
+.......>>>>>..AAAA..
+CGGGAAAAUGACCUA
+<<<<<.....aaaa.
+++
+
+NAM  HIVRT_II.3-9
+SRC  HIVRT_II.3-9 - 0..34::35
+SEQ  +SS
+UCAAGUGUUCCGAGAGGCAA 
+.......>>>>>..AAAA..
+CGGGAAAAGAGCCUA
+<<<<<.....aaaa.
+++
+
+NAM  HIVRT_II.3-37
+SRC  HIVRT_II.3-37 - 0..34::35
+SEQ  +SS
+UCAAGUAUUCCGAAGGUGAA 
+.......>>>>>..AAAA..
+CGGGAAAAUACACUA
+<<<<<.....aaaa.
+++
+
+NAM  HIVRT_II.3-56
+SRC  HIVRT_II.3-56 - 0..34::35
+SEQ  +SS
+UCAAGAGUUCCGAAAGUCGA 
+.......>>>>>..AAAA..
+CGGGAAAAUAGACUA
+<<<<<.....aaaa.
+++
+
+NAM  HIVRT_II.3-58
+SRC  HIVRT_II.3-58 - 0..34::35
+SEQ  +SS
+UCAAGAUUUCCGAGAGACAA 
+.......>>>>>..AAAA..
+CGGGAAAAGAGUCUA
+<<<<<.....aaaa.
+++
+
+NAM  HIVRT_II.3-60
+SRC  HIVRT_II.3-60 - 0..34::35
+SEQ  +SS
+UCCAGCGUUCCGUAAGUGGA 
+.......>>>>>..AAAAA.
+CGGGAAAAACCACUA
+<<<<<....aaaaa.
+++
+
+NAM  HIVRT_II.3-27
+SRC  HIVRT_II.3-27 - 0..34::35
+SEQ  +SS
+UCAAGAGUUCCGUAAGGCCA 
+.......>>>>>..AAAAA.
+CGGGAAAAAGGUCUA
+<<<<<....aaaaa.
+++
+
+NAM  HIVRT_II.3-15
+SRC  HIVRT_II.3-15 - 0..34::35
+SEQ  +SS
+UCAAGGAUUCCGAAAGGUAA 
+.......>>>>>..AAAAA.
+CGGGAAAAAUGCCUA
+<<<<<....aaaaa.
+++
+
+NAM  HIVRT_II.3-31
+SRC  HIVRT_II.3-31 - 0..33::34
+SEQ  +SS
+UCAAGAAUUCGUUAGUGUAC 
+.......>>>>.AAAAAA.<
+GGGAAAAAACACUA
+<<<.....aaaaaa
+++
+
+NAM  HIVRT_II.3-26
+SRC  HIVRT_II.3-26 - 0..34::35
+SEQ  +SS
+UCAAGCGUUCCGAUGGCUAA
+.......>>>>>.AAAAAA. 
+CGGGAAAAAUAGCUA
+<<<<<....aaaaaa
+++
+
+NAM  HIVRT_II.3-32
+SRC  HIVRT_II.3-32 - 0..34::35
+SEQ  +SS
+UCAAGGAUUCCGUUUGUGCA 
+.......>>>>>...AAAA.
+CGGGAAAAGGCACUA
+<<<<<....aaaa..
+++
+
+NAM  HIVRT_II.3-54
+SRC  HIVRT_II.3-54 - 0..33::34
+SEQ  +SS
+UCAAGAAUCCGUUUGCACAC 
+.......>>>>...AAAA.<
+GGGAAAACGUGCUA
+<<<.....aaaa..
+++
+
+NAM  HIVRT_II.3-28
+SRC  HIVRT_II.3-28 - 0..34::35
+SEQ  +SS
+UCAAGAAUUCCGUAAGGGGU 
+.......>>>>>...AAAAA
+CGGGAAAAACCCUAU
+<<<<<...aaaaa..
+++
+
+NAM  HIVRT_II.3-48
+SRC  HIVRT_II.3-48 - 0..34::35
+SEQ  +SS
+UCAAGGAUUCCGUAUGUCCU
+.......>>>>>...AAAAA 
+CGGGAAAAAGGACUA
+<<<<<...aaaaa..
+++
+
+NAM  HIVRT_II.3-59
+SRC  HIVRT_II.3-59 - 0..34::35
+SEQ  +SS
+UCAAGAGUUCCGAAAGGUAA 
+.......>>>>>..AAAAAA
+CGGGAAAAUUACCUA
+<<<<<...aaaaaa.
+++
+
+NAM  HIVRT_II.3-12
+SRC  HIVRT_II.3-12 - 0..34::35
+SEQ  +SS
+UCAAGUAUUCCGAUAGUCAA 
+.......>>>>>.AAAAA..
+CGGGAAAAGCGACUA
+<<<<<.....aaaaa
+++
+
+NAM  HIVRT_II.3-11
+SRC  HIVRT_II.3-11 - 0..34::35
+SEQ  +SS
+UCAAGAAUUCCGUAUGUGAU 
+.......>>>>>...AAA..
+CGGGAAAAACCACUA
+<<<<<.....aaa..
+++
+
+NAM  HIVRT_II.3-17
+SRC  HIVRT_II.3-17 - 0..34::35
+SEQ  +SS
+UCAAGGAUUCCGAUGUACAA
+.......>>>>>....AAA. 
+CGGGAAAACUGUCUA
+<<<<<....aaa...
+++
+
+NAM  HIVRT_others 3.20
+SRC  HIVRT_others 3.20 - 0..34::35
+SEQ  +SS
+UCAAGUAUUCCGAAGGAAAA 
+.......>>>>>.AAA....
+CGGGAAAACCACCUA
+<<<<<......aaa.
+++
+
+NAM  HIVRT_others 3.36
+SRC  HIVRT_others 3.36 - 0..34::35
+SEQ  +SS
+UCAAGUGUUCCGAAGGAAAA 
+.......>>>>>.AAA....
+CGGGAAAACCACCUA
+<<<<<......aaa.
+++
+
+NAM  HIVRT_others 3.24
+SRC  HIVRT_others 3.24 - 0..35::36
+SEQ  +SS
+UCAAGAUUUCCGAAGGAUAA 
+.......>>>>>..AA....
+CGGGAAAAACCGACUA
+<<<<<....aa.....
+++
+
+NAM  HIVRT_others 3.51
+SRC  HIVRT_others 3.51 - 0..34::35
+SEQ  +SS
+UCAAGAAUUCCGAAGCGUAA 
+.......>>>>>....AAA.
+CGGGAAAACAUACUA
+<<<<<.....aaa..
+++
+
+
+
+
