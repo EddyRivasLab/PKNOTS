@@ -93,7 +93,7 @@ F2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d, int d1, i
   dmin = (d1 < d2) ? d1 : d2;
   arg  = (dmin < 4) ? dmin-1 : 3;
   
-  dpen    = abs(d1-d2)*icfg[idxS][idxWA(arg)];
+  dpen    = abs(d1-d2)*wsf*icfg[idxS][idxWA(arg)];
   penalty = (dpen > MAXPEN) ? dpen : MAXPEN;
   
   if (icfg[idxS][idxP(s[i],s[j])] == 1*INTSCALE
@@ -148,8 +148,8 @@ F2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d, int d1, i
       else if (d1 == 2 && d2 == 2 && 
 	       icfg[idxS][idxP(s[i+1],s[j-1])] == INTSCALE)
 	{
-	  if (wsf*icfg[idxPS(s[k-1],s[l+1])][idxPS(s[k],s[l])] ==  /* this is the case so far */
-	      wsf*icfg[idxPS(s[l],s[k])][idxPS(s[l+1],s[k-1])])    /* with current parameters */
+	  if (icfg[idxPS(s[k-1],s[l+1])][idxPS(s[k],s[l])] ==  /* this is the case so far */
+	      icfg[idxPS(s[l],s[k])][idxPS(s[l+1],s[k-1])])    /* with current parameters */
 	    
 	    F2 = -BIGINT;  /* better read it as two stems */
 	  

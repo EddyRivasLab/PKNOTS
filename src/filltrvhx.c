@@ -58,7 +58,7 @@ FillVHX(int *s, int len, struct rnapar_2 *rnapar,
       
       /* (VH1)__/ IRREDUCIBLE SURFACES of  O(2). 
        */
-      bestsc = F2(s, len, rnapar, icfg, j, d, d1, d2);
+      bestsc = wkn * (int)(F2(s, len, rnapar, icfg, j, d, d1, d2)/wsf);
     
       /* (VH2)__/ VHX + VHX */
       for (mid1 = 1; mid1 < d1; mid1++)

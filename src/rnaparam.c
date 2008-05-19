@@ -440,7 +440,7 @@ ParamIntSCFG(struct rnapar_2 *rnapar)
   rnapar->P6P  = -wsf*IntizeScale(EPARAM6P);
   rnapar->P9   = -wsf*EPARAM9*INTSCALE;
   rnapar->P10  = -wsf*IntizeScale(EPARAM10);
-  rnapar->P10P = -wsf*IntizeScale(EPARAM10P);
+  rnapar->P10P = -wkn*IntizeScale(EPARAM10P);
   rnapar->P11  = -wsf*IntizeScale(EPARAM11);
   rnapar->P12  = -wsf*IntizeScale(EPARAM12);
   rnapar->P13  = -wsf*IntizeScale(EPARAM13);

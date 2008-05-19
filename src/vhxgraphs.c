@@ -26,7 +26,7 @@ VH1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d, int d1, 
 { 
   int VH1;
   
-  VH1 = (int)(wkn/wsf)*F2(s, len, rnapar, icfg, j, d, d1, d2);
+  VH1 = wkn * (int)(F2(s, len, rnapar, icfg, j, d, d1, d2)/wsf);
   
   return VH1;
 }
