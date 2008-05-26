@@ -1,0 +1,10 @@
+NAM  DD3280 
+SRC  DD3280  - 0..74::75
+SEQ  +SS
+      1 GGGAUUGUAGUUCAAUUGGUUAGAGCACCGCCCUGUCAAGGCGGAAGCUGC
+        >>>>>>>..>>>>.........<<<<.>>>>>.......<<<<<.....>>
+     51 GGGUUCGAGCCCCGUCAGUCCCG
+        >>>.......<<<<<<<<<<<<.
+++
+
+ 

@@ -1,0 +1,38 @@
+SQUID - A C function library for biological sequence analysis
+Copyright (C) 1992-1996 Sean R. Eddy
+
+SQUID is a freely redistributable library of C code functions for
+sequence analysis. SQUID also includes a number of small utility
+programs.
+
+Please read the following files:
+
+  INSTALL      -- instructions for installing the programs
+  COPYING      -- copyright notice, and information on my distribution policy
+  FILES        -- overview of what the source files are
+  GNULICENSE   -- version 2 of the GNU Public License (see COPYING)
+
+###################################################################
+#### Availability 
+###################################################################
+
+You can obtain a current copy of SQUID from
+ftp://genome.wustl.edu/pub/eddy
+
+
+###################################################################
+#### Bug reports and other comments 
+###################################################################
+
+If you encounter any bugs in this library, or you have any questions
+or comments, please e-mail me:
+
+   Sean Eddy
+   eddy@genetics.wustl.edu
+
+   Dept. of Genetics
+   Washington University School of Medicine
+   660 S. Euclid Box 8232
+   St. Louis MO 63110
+   USA
+
