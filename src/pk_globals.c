@@ -1,4 +1,4 @@
-/* globals.c
+/* pk_lobals.c
  * 
  * 
  * 
