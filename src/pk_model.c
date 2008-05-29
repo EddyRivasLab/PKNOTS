@@ -7,11 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "squid.h"
+#include "pknots.h"
+#include "pk_model.h"
+#include "pk_rnaparam.h"
+#include "pk_util.h"
 
+#include <easel.h>
 
 void
 AllocBaseFreq(float **ret_basefreq)
@@ -19,7 +22,8 @@ AllocBaseFreq(float **ret_basefreq)
   float *basefreq;
   int          nt;
 
-  basefreq = (float *) MallocOrDie(sizeof(float) * 4);
+  if((basefreq = (float *) malloc(sizeof(float) * 4)) == NULL)
+    pk_fatal("malloc failed");
 
 
   /* Initialize all probabilities to zero
@@ -56,7 +60,7 @@ BaseFreq(char *s, int j, int d, float **ret_basefreq)
     else if (s[j-mid] == 'C') basefreq[1] += 1.;
     else if (s[j-mid] == 'G') basefreq[2] += 1.;
     else if (s[j-mid] == 'U') basefreq[3] += 1.;
-    else Die("Unrecognized character (%c, pos = %d) in sequence\n", s[j-mid], j-mid);
+    else pk_fatal("Unrecognized character (%c, pos = %d) in sequence\n", s[j-mid], j-mid);
 
   for (nt = 0; nt < 4; nt++) {
     basefreq[nt] /= (float)(d+1);    /* normalize            */
@@ -64,7 +68,7 @@ BaseFreq(char *s, int j, int d, float **ret_basefreq)
   }
 
   if (sum > 1.001 || sum < 0.999) 
-    Die ("freqs of nts do not add up to one (sum = %f)", sum);
+    pk_fatal ("freqs of nts do not add up to one (sum = %f)", sum);
 
   *ret_basefreq = basefreq;
 }
@@ -80,7 +84,7 @@ AllocSCFG(void)
    */
   if ((cfg    = (float **) malloc (sizeof(float *) * NSTATES)) == NULL ||
       (cfg[0] = (float *)  malloc (sizeof(float)   * NSTATES * NSTATES)) == NULL)
-    Die("malloc failed");
+    pk_fatal("malloc failed");
   for (i = 1; i < NSTATES; i++)
     cfg[i] = cfg[0] + i * NSTATES;
 
@@ -104,7 +108,7 @@ AllocIntSCFG(void)
    */
   if ((icfg    = (int **) malloc (sizeof(int *) * NSTATES)) == NULL ||
       (icfg[0] = (int *)  malloc (sizeof(int)   * NSTATES * NSTATES)) == NULL)
-    Die("malloc failed");
+    pk_fatal("malloc failed");
   for (i = 1; i < NSTATES; i++)
     icfg[i] = icfg[0] + i * NSTATES;
   return icfg;
@@ -207,17 +211,6 @@ LogoddsifySCFG(float **cfg)
 }
 
 void
-RandomSCFG(float **cfg)
-{
-  int i, j;
-
-  for (i = 0; i < NSTATES; i++)
-    for (j = 0; j < NSTATES; j++)
-      cfg[i][j] = (Connects[Ntype[i]][Ntype[j]]) ? sre_random() : 0.0;
-  NormalizeSCFG(cfg);
-}
-
-void
 NormalizeSCFG(float **cfg)
 {
   float sum;
@@ -300,7 +293,7 @@ ProbifySCFG(float **cfg)
 	  norm += cfg[fs][ts] + 1.0; /* plus-one Laplace prior */
 	else			/* paranoia never hurts. */
 	  if (cfg[fs][ts] != 0.0)
-	    Die("Somebody screwed up. %s -> %s transition is nonzero.\n",
+	    pk_fatal("Somebody screwed up. %s -> %s transition is nonzero.\n",
 		stNAME[fs], stNAME[ts]);
       
       for (ts = 0; ts < NSTATES; ts++)
@@ -343,7 +336,7 @@ Stype(int node, int symi, int symj, int size, int asy, int tlp)
   case dpcWA: st = (asy<31)  ? idxWA(asy) : -1;               break;
   case dpcTL: st = (tlp<256)  ? idxTL(tlp) : -1;               break;
   case dpcE:  st = idxE;                                      break;
-  default: Die("can't find state type for node, symi, symj, size, asy, tlp = %d,%d,%d,%d,%d,%d\n",
+  default: pk_fatal("can't find state type for node, symi, symj, size, asy, tlp = %d,%d,%d,%d,%d,%d\n",
 	       node, symi, symj, size, asy, tlp);
   }
   return st;

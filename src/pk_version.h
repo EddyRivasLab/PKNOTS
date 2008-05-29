@@ -2,6 +2,6 @@
  * 
  */
 
-#define RELEASE   "1.05"    
-#define RELEASEDATE "Thu Aug 11 11:25:58 CDT 2005"  
+#define RELEASE   "2.0"    
+#define RELEASEDATE "2008"  
 

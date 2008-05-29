@@ -42,6 +42,8 @@
 #define MIN_SCORE   0.0   /* minimum significant score */
 #define MIN_LEN     20    /* minimum length of significant structures */
 
+typedef int CYKVAL;
+
 /* The dynamic programming matrix keeps different cells
  * for the different main types of non-terminals in the grammar.
  * dpcE (END) must always be last, to allow it to be

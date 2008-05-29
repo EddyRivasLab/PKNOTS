@@ -8,12 +8,21 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protovx.h"
-#include "protowbx.h"
-#include "protowx.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_sq.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"
+
+#include "pk_cyk.h"
+#include "pk_fillmtx.h"
+#include "pk_tracemtx.h"
+#include "pk_rnaparam.h"
+#include "pk_vxgraphs.h"
+#include "pk_wbxgraphs.h"
+#include "pk_wxgraphs.h"
+#include "pk_util.h"
+
 
 /* Function: StructurePredictkn_2IS()
  * 
@@ -32,23 +41,32 @@
  *         
  * Return:   (void)
  */          
-void
-StructurePredictkn_2IS(FILE *outf, char *seq, int len, struct rnapar_2 *rnapar, int **icfg,  
+int
+StructurePredictkn_2IS(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int len, struct rnapar_2 *rnapar, int **icfg,  
 		       int verbose, int traceback, struct tracekn_s **ret_tr, 
 		       int *ret_score, int allow_coaxials, int allow_pseudoknots, int approx)
 {
   struct tracekn_s *tr;          /* traceback of optimal structure              */
-  int ****whx;                   /* One-hole matrix, 4D (len x len x len x len) */
-  int ****vhx;                   /* One-hole matrix, 4D (len x len x len x len) */
-  int ****zhx;                   /* One-hole matrix, 4D (len x len x len x len) */
-  int ****yhx;                   /* One-hole matrix, 4D (len x len x len x len) */
-  int   **wx;                    /*  no-hole matrix, 2D (len x len)             */
-  int  **wbx;                    /*  no-hole matrix, 2D (len x len)             */
-  int   **vx;                    /*  no-hole matrix, 2D (len x len)             */
-  int    *vp;                    /*  no-hole matrix, for internal loops         */
-  int  *iseq;                    /* sequence converted to 0..3 indices          */
-                                                                                          
- IntizeSequence(seq, len, &iseq);
+  int     ****whx;               /* One-hole matrix, 4D (len x len x len x len) */
+  int     ****vhx;               /* One-hole matrix, 4D (len x len x len x len) */
+  int     ****zhx;               /* One-hole matrix, 4D (len x len x len x len) */
+  int     ****yhx;               /* One-hole matrix, 4D (len x len x len x len) */
+  int     **wx;                  /*  no-hole matrix, 2D (len x len)             */
+  int     **wbx;                 /*  no-hole matrix, 2D (len x len)             */
+  int     **vx;                  /*  no-hole matrix, 2D (len x len)             */
+  int     *vp;                   /*  no-hole matrix, for internal loops         */
+  ESL_DSQ *dsq;
+  int     i;
+  int     status;
+
+  ESL_ALLOC(sq->dsq, sizeof(char) * (len+2));
+  if (esl_abc_Digitize(abc, sq->seq, sq->dsq) != eslOK)
+    pk_fatal("failed to digitize sequence");
+     
+  /* the dsq goes from 1..L, pknots arrays traditionally go from 0...L-1 */
+  ESL_ALLOC(dsq, sizeof(char) * (len));
+  for (i = 1; i <= len; i ++) 
+    dsq[i-1] = sq->dsq[i];
 
   Alloc_Mtx(len, &wx, &wbx, &vx, &vp);
   Pattern_Mtx(len, wx, wbx, vx, vp); /* for debugging */
@@ -57,32 +75,31 @@ StructurePredictkn_2IS(FILE *outf, char *seq, int len, struct rnapar_2 *rnapar, 
     Alloc_Mgp(len, &whx, &vhx, &zhx, &yhx);
     Pattern_Mgp(len, whx, vhx, zhx, yhx); /* for debugging */
  
-    FillMtx(iseq, len, rnapar, icfg,  wx, wbx, vx, vp, whx, vhx, zhx, yhx, allow_coaxials, approx);
+    FillMtx(dsq, len, rnapar, icfg,  wx, wbx, vx, vp, whx, vhx, zhx, yhx, allow_coaxials, approx);
   }
   else
-    FillMtx_nested(iseq, len, rnapar, icfg,  wx, wbx, vx, vp, allow_coaxials);
-  
-  /*
-  if (verbose) {
-    Print_2DMtx(outf, vx, len);
-    Print_4DMtx(outf, whx, len);
-  }
-  */
+    FillMtx_nested(dsq, len, rnapar, icfg,  wx, wbx, vx, vp, allow_coaxials);
   
   if (allow_pseudoknots) 
-    TraceMtx(outf, iseq, len, rnapar, icfg, wx, wbx, vx,  whx, vhx, zhx, yhx,
+    TraceMtx(outf, dsq, len, rnapar, icfg, wx, wbx, vx,  whx, vhx, zhx, yhx,
 	     len-1, len-1, (int)((len-1)/2), len-(int)((len-1)/2)-2,  
 	     approx, &tr, traceback);
  else
-    TraceMtx_nested(outf, iseq, len, rnapar, icfg, wx, wbx, vx, len-1, len-1, &tr, traceback);
+    TraceMtx_nested(outf, dsq, len, rnapar, icfg, wx, wbx, vx, len-1, len-1, &tr, traceback);
     
   *ret_score = (float)(wx[len-1][len-1]);
   *ret_tr    = tr;
   
-  free(iseq);
   Free_Mtx(len, wx, wbx, vx, vp);
   if (allow_pseudoknots)
     Free_Mgp(len, whx, vhx, zhx, yhx);
+
+  free(dsq);
+  return eslOK;
+
+ ERROR:
+  free(dsq);
+  return status;
 }
                        
 
@@ -117,22 +134,22 @@ Alloc_Mtx(int len,  int ***ret_wx, int ***ret_wbx, int ***ret_vx, int **ret_vp)
    */
   
   if ((wx  = (int **) malloc (sizeof(int *) * len)) == NULL)
-    Die("malloc failed in wx");
+    pk_fatal("malloc failed in wx");
   if ((wx[0]  = (int *) malloc (sizeof(int) * Dim2len(len))) == NULL)
-    Die("malloc failed in wx[0]");
+    pk_fatal("malloc failed in wx[0]");
   
   if ((wbx = (int **) malloc (sizeof(int *) * len)) == NULL)
-    Die("malloc failed in wbx");
+    pk_fatal("malloc failed in wbx");
   if( (wbx[0] = (int *) malloc (sizeof(int) * Dim2len(len))) == NULL)
-    Die("malloc failed in wbx[0]");
+    pk_fatal("malloc failed in wbx[0]");
   
   if ((vx  = (int **) malloc (sizeof(int *) * len)) == NULL)
-    Die("malloc failed in vx");
+    pk_fatal("malloc failed in vx");
   if ((vx[0]  = (int *) malloc (sizeof(int) * Dim2len(len))) == NULL)
-    Die("malloc failed in vx[0]");
+    pk_fatal("malloc failed in vx[0]");
   
   if ((vp = (int *) malloc (sizeof(int) * len)) == NULL)
-    Die("malloc failed in vp");
+    pk_fatal("malloc failed in vp");
 
   for (j = 1; j < len; j++)
     {
@@ -220,40 +237,40 @@ Alloc_Mgp(int len, int *****ret_whx, int *****ret_vhx,
    * fastest varying index is j.
    */
  if ((whx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
-    Die("malloc failed in whx");
+    pk_fatal("malloc failed in whx");
   if ((whx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    Die("malloc failed in whx[0]");
+    pk_fatal("malloc failed in whx[0]");
   if ((whx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    Die("malloc failed in whx[0][0]");
+    pk_fatal("malloc failed in whx[0][0]");
   if ((whx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    Die("malloc failed in whx[0][0][0]");
+    pk_fatal("malloc failed in whx[0][0][0]");
   
   if ((vhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
-    Die("malloc failed in vhx");
+    pk_fatal("malloc failed in vhx");
   if ((vhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    Die("malloc failed in vhx[0]");
+    pk_fatal("malloc failed in vhx[0]");
   if ((vhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    Die("malloc failed in vhx[0][0]");
+    pk_fatal("malloc failed in vhx[0][0]");
   if ((vhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    Die("malloc failed in vhx[0][0][0]");
+    pk_fatal("malloc failed in vhx[0][0][0]");
   
   if ((zhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
-    Die("malloc failed in zhx");
+    pk_fatal("malloc failed in zhx");
   if ((zhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    Die("malloc failed in zhx[0]");
+    pk_fatal("malloc failed in zhx[0]");
   if ((zhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    Die("malloc failed in zhx[0][0]");
+    pk_fatal("malloc failed in zhx[0][0]");
   if ((zhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    Die("malloc failed in zhx[0][0][0]");
+    pk_fatal("malloc failed in zhx[0][0][0]");
   
   if ((yhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
-    Die("malloc failed in yhx");
+    pk_fatal("malloc failed in yhx");
   if ((yhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    Die("malloc failed in yhx[0]");
+    pk_fatal("malloc failed in yhx[0]");
   if ((yhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    Die("malloc failed in yhx[0][0]");
+    pk_fatal("malloc failed in yhx[0][0]");
   if ((yhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    Die("malloc failed in yhx[0][0][0]");
+    pk_fatal("malloc failed in yhx[0][0][0]");
   
   for (j = 0; j < len; j++)
     {

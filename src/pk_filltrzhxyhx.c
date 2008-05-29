@@ -16,10 +16,15 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protozhxyhx.h"
-#include "squid.h"
+#include <easel.h>
+
+#include "pknots.h"
+#include "pk_filltrzhxyhx.h"
+#include "pk_irredsurf.h"
+#include "pk_zhxyhxgraphs.h"
+#include "pk_util.h"
+
+
 
 /* Function: FillZHX()
  * 
@@ -41,7 +46,7 @@
  *            zhx is filled.
  */ 
 void
-FillZHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+FillZHX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****zhx, 
 	 int j, int d, int d1, int d2)
 {
@@ -255,7 +260,7 @@ FillZHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **v
  * Return:    (void)           
  */ 
 void
-TraceZHX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+TraceZHX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****zhx, 
 	 int j, int d, int d1, int d2, 
 	 struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
@@ -431,7 +436,7 @@ TraceZHX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int *
  *            yhx is filled.
  */ 
 void
-FillYHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+FillYHX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****yhx,
 	 int j, int d, int d1, int d2, int min_kn)
 {
@@ -637,7 +642,7 @@ FillYHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **v
  * Return:    (void)           
  */ 
 void
-TraceYHX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+TraceYHX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****yhx,
 	 int j, int d, int d1, int d2, 
 	 struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)

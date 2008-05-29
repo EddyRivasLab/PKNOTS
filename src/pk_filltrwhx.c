@@ -13,10 +13,14 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protowhx.h"
-#include "squid.h"
+#include <easel.h>
+
+#include "pknots.h"
+#include "pk_filltrwbx.h"
+#include "pk_irredsurf.h"
+#include "pk_whxgraphs.h"
+#include "pk_util.h"
+
 
 /* Function: FillWHX()
  * 
@@ -38,7 +42,7 @@
  *            whx is filled.
  */       
 void
-FillWHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+FillWHX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****zhx, int ****yhx,
 	 int j, int d, int d1, int d2)
 {
@@ -608,7 +612,7 @@ FillWHX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **v
  * Return:    (void)           
  */ 
 void
-TraceWHX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
+TraceWHX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****zhx, int ****yhx,
 	 int j, int d, int d1, int d2, 
 	 struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)

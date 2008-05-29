@@ -5,7 +5,6 @@
  */
 
 #include <stdio.h>
-#include "cfg.h"
 
 #include <easel.h>
 #include <esl_sqio.h>
@@ -20,7 +19,6 @@ extern void    FreeSCFG(float **cfg);
 extern void    FreeIntSCFG(int **icfg);
 extern int   **LogifySCFG(float **cfg);
 extern int   **LogoddsifySCFG(float **cfg);
-extern void    RandomSCFG(float **cfg);
 extern void    NormalizeSCFG(float **cfg);
 extern int   **NussinovIntSCFG(void);
 extern void    ProbifySCFG(float **cfg);

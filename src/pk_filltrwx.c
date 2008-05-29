@@ -13,14 +13,18 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protowx.h"
-#include "squid.h"
+#include <easel.h>
 
-static void FillWX_pks(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+#include "pknots.h"
+#include "pk_filltrwx.h"
+#include "pk_irredsurf.h"
+#include "pk_wxgraphs.h"
+#include "pk_util.h"
+
+
+static void FillWX_pks(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
 		       int ****whx, int ****yhx, int j, int d);
-static void TraceWX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+static void TraceWX_pks(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
 			int ****whx, int ****yhx, int j, int d, int *flag,
 			struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback);
 
@@ -44,7 +48,7 @@ static void TraceWX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, in
  *            wx is filled.
  */       
 void
-FillWX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+FillWX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
        int ****whx, int ****yhx, int j, int d)
 {
 
@@ -76,7 +80,7 @@ FillWX(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx,
  *            traceback wx.
  */       
 void
-TraceWX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+TraceWX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
 	int ****whx, int ****yhx, int j, int d,  
 	struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
 {
@@ -97,7 +101,7 @@ TraceWX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **
   
 
   if(*flag == FALSE)
-    Die("something went wrong in the traceback of WX");
+    pk_fatal("something went wrong in the traceback of WX");
 }
 
 /* Function: FillWX_nested()
@@ -115,7 +119,7 @@ TraceWX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **
  *            wx is filled.
  */       
 void
-FillWX_nested(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, int j, int d)
+FillWX_nested(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, int j, int d)
 {
   int                  i;  /* coords in mtx's                 */
   int                mid;  /* midpoint of bifurcation         */
@@ -244,7 +248,7 @@ FillWX_nested(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, in
  *            traceback wx.
  */       
 void
-TraceWX_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, 
+TraceWX_nested(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, 
 	       int **wx, int **vx, int j, int d, int *flag, 
 	       struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
 {
@@ -388,7 +392,7 @@ TraceWX_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg,
  *
  */
 void
-FillWX_pks(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+FillWX_pks(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
 	   int ****whx, int ****yhx, int j, int d)
 {
   int i;
@@ -465,7 +469,7 @@ FillWX_pks(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int *
  *
  */
 void
-TraceWX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
+TraceWX_pks(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **vx, 
 	    int ****whx, int ****yhx, int j, int d, int *flag,
 	    struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
 {

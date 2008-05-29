@@ -12,15 +12,19 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protowbx.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"
+#include "pk_irredsurf.h"
+#include "pk_wbxgraphs.h"
+#include "pk_trace.h"
+#include "pk_util.h"
 
 /* (WB1)__/ PAIR (i,j).
  */
 int
-WB1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
+WB1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
 { 
   int WB1;
   int i;
@@ -48,7 +52,7 @@ trace_WB1(FILE *outf, int **vx,  int j, int d,
 /* (WB2)__/ PAIR (i+1,j-1). Connect to (i+1,j-1) (j-1,d-2)
  */
 int
-WB2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
+WB2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
 { 
   int WB2;
   int i;
@@ -84,7 +88,7 @@ trace_WB2(FILE *outf, int **vx, int j, int d,
 /* (WB3)__/  SINGLET-LEFT [(i+1,j) base-paired]. 
  */
 int
-WB3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
+WB3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
 { 
   int WB3;
   int i;
@@ -119,7 +123,7 @@ trace_WB3(FILE *outf, int **vx, int j, int d,
 /* (WB4)__/  SINGLET-RIGHT. [(i,j-1) base-paired].  
  */
 int
-WB4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
+WB4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d)
 { 
   int WB4;
   int i;
@@ -154,7 +158,7 @@ trace_WB4(FILE *outf, int **vx, int j, int d,
 /* (WB5)__/  SINGLET-LEFT. Connect (i+1,j) (j,d-1) 
  */
 int
-WB5(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d)
+WB5(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d)
 { 
   int WB5;
   int i;
@@ -187,7 +191,7 @@ trace_WB5(FILE *outf, int **wbx, int j, int d,
 /* (WB6)__/  SINGLET-RIGHT. Connect (i,j-1) (j-1,d-1) 
  */
 int
-WB6(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d)
+WB6(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d)
 { 
   int WB6;
   int i;
@@ -228,7 +232,7 @@ trace_WB6(FILE *outf, int **wbx, int j, int d,
 /* (WB7)__/  2 WBX 
  */
 int
-WB7(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
+WB7(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
 { 
   int WB7;
   int i;
@@ -268,7 +272,7 @@ trace_WB7(FILE *outf, int **wbx, int j, int d, int mid,
 
 /* (WB8.1)__/ no danglings / coaxial = stack + 1  */
 int
-WB8_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_1;
   int i;
@@ -302,7 +306,7 @@ trace_WB8_1(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.2)__/ i dangles off i+1,i+mid */
 int
-WB8_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_2;
   int i;
@@ -337,7 +341,7 @@ trace_WB8_2(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.3)__/ j dangles off i+mid+1,j-1 */
 int
-WB8_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_3;
   int i;
@@ -377,7 +381,7 @@ trace_WB8_3(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.4)__/ i dangles off i+1,i+mid / j dangles off i+mid+1,j-1 */
 int
-WB8_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_4;
   int i;
@@ -425,7 +429,7 @@ trace_WB8_4(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.5)__/ no danglings (do not add +1 becuase the stacking is not perfect) */
 int
-WB8_5(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_5(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_5;
   int i;
@@ -464,7 +468,7 @@ trace_WB8_5(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.6)__/ i dangles off i+1,i+mid */
 int
-WB8_6(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_6(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_6;
   int i;
@@ -504,7 +508,7 @@ trace_WB8_6(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.7)__/ j dangles off i+mid+1,j-1 */
 int
-WB8_7(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_7(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_7;
   int i;
@@ -544,7 +548,7 @@ trace_WB8_7(FILE *outf, int **vx, int j, int d, int mid,
 
 /* (WB8.8)__/ i dangles off i+1,i+mid / j dangles off i+mid+2,j-1 */
 int
-WB8_8(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
+WB8_8(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid)
 { 
   int WB8_8;
   int i;
@@ -599,7 +603,7 @@ trace_WB8_8(FILE *outf, int **vx, int j, int d, int mid,
 /* (WB9)__/ 2 WHX
  */
 int
-WB9(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
+WB9(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
 { 
   int WB9;
   int i;
@@ -640,7 +644,7 @@ trace_WB9(FILE *outf, int ****whx, int j, int d, int mid, int mid1, int mid2,
              / i+mid1+1 dangles right off i+mid-mid2,i+mid1     /
              / i+mid+2  dangles left  off i+mid+3,i+mid-mid2-1  */
 int
-WB10_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, 
+WB10_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, 
        int j, int d, int mid, int mid1, int mid2)
 { 
   int WB10_1;
@@ -682,7 +686,7 @@ trace_WB10_1(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
             / i+mid1+1 dangles right off i+mid-mid2,i+mid1     /
             / i+mid+2  dangles left  off i+mid+3,i+mid-mid2-1  */
 int
-WB10_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, 
+WB10_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, 
        int j, int d, int mid, int mid1, int mid2)
 { 
   int WB10_2;

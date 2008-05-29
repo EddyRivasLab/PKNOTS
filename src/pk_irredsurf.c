@@ -7,10 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "squid.h"
+#include <easel.h>
+
+#include "pknots.h"
+#include "pk_irredsurf.h"
+#include "pk_rnaparam.h"
  
 /* Function: F1()
  * 
@@ -25,7 +28,7 @@
  * Return:   F1
  */       
 int
-F1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d)
+F1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d)
 {
   int F1;
   int  i;     /* sequence start position */
@@ -77,7 +80,7 @@ F1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d)
  * Return:   F2
  */       
 int
-F2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d, int d1, int d2)
+F2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d, int d1, int d2)
 {
   int F2;
   int i;			/* sequence start position                         */

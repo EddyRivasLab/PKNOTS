@@ -11,16 +11,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protovx.h"
-#include "squid.h"
+#include <easel.h>
 
-static void FillVX_pks(int *s, int len, struct rnapar_2 *rnapar, 
+#include "pknots.h"
+#include "pk_filltrvx.h"
+#include "pk_irredsurf.h"
+#include "pk_vxgraphs.h"
+#include "pk_util.h"
+
+static void FillVX_pks(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
 		       int **icfg, int **wbx, int **vx, 
 		       int ****whx, int ****zhx, int ****yhx, int j, int d);
-static void TraceVX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, 
+static void TraceVX_pks(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
 			int **icfg, int **wbx, int **vx, 
 			int ****whx, int ****zhx, int ****yhx, int j, int d, int *flag,
 			struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback);
@@ -44,7 +48,7 @@ static void TraceVX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
  *            vx is filled.
  */       
 void
-FillVX(int *s, int len, struct rnapar_2 *rnapar, 
+FillVX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
        int **icfg, int **wbx, int **vx, int *vp, 
        int ****whx, int ****zhx, int ****yhx, int j, int d, int allow_coaxials, int approx)
 {
@@ -78,7 +82,7 @@ FillVX(int *s, int len, struct rnapar_2 *rnapar,
  *            vx is filled.
  */       
 void
-TraceVX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, 
+TraceVX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
 	int **icfg, int **wbx, int **vx,  
 	int ****whx, int ****zhx, int ****yhx, int j, int d, int approx,
 	struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
@@ -99,7 +103,7 @@ TraceVX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
   j, d, flag, curr_tr, dolist, traceback); 
  
   if(*flag == FALSE)
-    Die("something went wrong in the traceback of VX");
+    pk_fatal("something went wrong in the traceback of VX");
 }
 
 /* Function: FillVP() 
@@ -118,7 +122,7 @@ TraceVX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
  *            vpbest is filled.
  */       
 void 
-FillVP(int *s, int len, struct rnapar_2 *rnapar, 
+FillVP(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
        int **icfg, int **vx, int *vp, int j, int d)
 {
   int mid;  /* midpoint of bifurcation         */
@@ -183,7 +187,7 @@ FillVP(int *s, int len, struct rnapar_2 *rnapar,
  *            diagrams v1, v2, v3, v4, v5, v6 of vx are calculated.
  */       
 void
-FillVX_nested(int *s, int len, struct rnapar_2 *rnapar,
+FillVX_nested(ESL_DSQ *s, int len, struct rnapar_2 *rnapar,
 	      int **icfg, int **wbx, int **vx, int *vp, 
 	      int j, int d, int allow_coaxials)
 {
@@ -773,7 +777,7 @@ FillVX_nested(int *s, int len, struct rnapar_2 *rnapar,
  *            vx is filled.
  */       
 void
-TraceVX_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
+TraceVX_nested(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar,
 	       int **icfg, int **wbx, int **vx, int j, int d,  
 	       int *flag, struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
 {
@@ -1220,7 +1224,7 @@ TraceVX_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
  *            structures V7, V8, V9, V10 of vx are filled.
  */     
 void 
-FillVX_pks(int *s, int len, struct rnapar_2 *rnapar,
+FillVX_pks(ESL_DSQ *s, int len, struct rnapar_2 *rnapar,
 	   int **icfg, int **wbx, int **vx, 
 	   int ****whx, int ****zhx, int ****yhx, int j, int d)
 {
@@ -1480,7 +1484,7 @@ FillVX_pks(int *s, int len, struct rnapar_2 *rnapar,
  *            structures V7, V8, V9, V10 of vx are traced back.
  */      
 void 
-TraceVX_pks(FILE *outf, int *s, int len, struct rnapar_2 *rnapar,
+TraceVX_pks(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar,
 	    int **icfg, int **wbx, int **vx, 
 	    int ****whx, int ****zhx, int ****yhx, int j, int d, int *flag,
 	    struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)

@@ -13,10 +13,13 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protovhx.h"
-#include "squid.h"
+#include <easel.h>
+
+#include "pknots.h"
+#include "pk_filltrvhx.h"
+#include "pk_irredsurf.h"
+#include "pk_vhxgraphs.h"
+ #include "pk_util.h"
 
 /* Function: FillVHX()
  * 
@@ -38,7 +41,7 @@
  *            vhx is filled.
  */       
 void
-FillVHX(int *s, int len, struct rnapar_2 *rnapar, 
+FillVHX(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
 	int **icfg, int ****whx, int ****vhx, 
 	int j, int d, int d1, int d2, int min_kn)
 {
@@ -224,7 +227,7 @@ FillVHX(int *s, int len, struct rnapar_2 *rnapar,
  * Return:    (void)           
  */ 
 void
-TraceVHX(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, 
+TraceVHX(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, 
 	 int **icfg, int ****whx, int ****vhx, 
 	 int j, int d, int d1, int d2, 
 	 struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)

@@ -26,12 +26,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "cfg.h"		/* struct trace_s and struct tracestack_s */
-#include "proto.h"
-#include "protovx.h"
-#include "protowbx.h"
-#include "protowx.h"
-#include "version.h"
+#include <easel.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"		/* struct trace_s and struct tracestack_s */
+#include "pk_trace.h"
+#include "pk_util.h"
 
 #ifdef MEMDEBUG
 #include "dbmalloc.h"
@@ -52,7 +52,7 @@ InitTrace(void)
   struct trace_s *new;
 
   if ((new = (struct trace_s *) malloc (sizeof(struct trace_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   
   new->emitl = -1;
   new->emitr = -1;
@@ -75,7 +75,7 @@ InitTracekn(void)
   struct tracekn_s *new;
 
   if ((new = (struct tracekn_s *) malloc (sizeof(struct tracekn_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   
   new->emiti = -1;
   new->emitj = -1;
@@ -109,7 +109,7 @@ AttachTrace(struct trace_s *parent,
   struct trace_s *new;
 
   if (parent->nxtr != NULL)
-    Die("That trace node is already full, fool.");
+    pk_fatal("That trace node is already full, fool.");
 
   /* If left branch is already connected to something, swap it over to the
    * right (thus enforcing the necessary rule that BIFURCS attach to the right
@@ -122,7 +122,7 @@ AttachTrace(struct trace_s *parent,
     }
 
   if ((new = (struct trace_s *) malloc (sizeof(struct trace_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   new->nxtr    = NULL;
   new->nxtl    = NULL;
   new->prv     = parent;
@@ -157,7 +157,7 @@ AttachTracekn(struct tracekn_s *parent,
   struct tracekn_s *new;
 
   if (parent->nxtr != NULL)
-    Die("That trace node is already full, fool.");
+    pk_fatal("That trace node is already full, fool.");
 
   /* If left branch is already connected to something, swap it over to the
    * right (thus enforcing the necessary rule that BIFURCS attach to the right
@@ -170,7 +170,7 @@ AttachTracekn(struct tracekn_s *parent,
     }
 
   if ((new = (struct tracekn_s *) malloc (sizeof(struct tracekn_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   new->nxtr    = NULL;
   new->nxtl    = NULL;
   new->prv     = parent;
@@ -250,7 +250,7 @@ InitTracestack(void)
   struct tracestack_s *stack;
 
   if ((stack = (struct tracestack_s *) malloc (sizeof(struct tracestack_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   stack->nxt = NULL;
   return stack;
 }
@@ -266,7 +266,7 @@ InitTraceknstack(void)
   struct traceknstack_s *stack;
 
   if ((stack = (struct traceknstack_s *) malloc (sizeof(struct traceknstack_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   stack->nxt = NULL;
   return stack;
 }
@@ -278,7 +278,7 @@ PushTracestack(struct tracestack_s *stack,
   struct tracestack_s *new;
 
   if ((new = (struct tracestack_s *) malloc (sizeof(struct tracestack_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   new->node = tracenode;
 
   new->nxt = stack->nxt;
@@ -292,7 +292,7 @@ PushTraceknstack(struct traceknstack_s *stack,
   struct traceknstack_s *new;
 
   if ((new = (struct traceknstack_s *) malloc (sizeof(struct traceknstack_s))) == NULL)
-    Die("Memory allocation failure at %s line %d", __FILE__, __LINE__);
+    pk_fatal("Memory allocation failure at %s line %d", __FILE__, __LINE__);
   new->node = tracenode;
 
   new->nxt = stack->nxt;

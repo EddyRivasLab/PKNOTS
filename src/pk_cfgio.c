@@ -7,8 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cfg.h"
-#include "proto.h"
+#include "pknots.h"
+#include "pk_cfgio.h"
+#include "pk_model.h"
 
 #ifdef MEMDEBUG
 #include "dbmalloc.h"
@@ -54,15 +55,15 @@ ReadSCFG(FILE *ofp, float ***ret_cfg)
 
   cfg = AllocSCFG();
   if (fread(&magic, sizeof(int), 1, ofp) < 1)
-    { Warn("Failed to read magic number from SCFG save file"); return 0; }
+    { printf("Failed to read magic number from SCFG save file"); return 0; }
   if (magic == v10magic)
     {
       for (fs = 0; fs < NSTATES; fs++)
 	if (fread(cfg[fs], sizeof(float), NSTATES, ofp) < NSTATES)
-	  { Warn("fread failed on SCFG save file"); return 0; }
+	  { printf("fread failed on SCFG save file"); return 0; }
     }
   else
-    { Warn("bad magic on that SCFG save file"); return 0; }
+    { printf("bad magic on that SCFG save file"); return 0; }
   *ret_cfg = cfg;
   return 1;
 }

@@ -13,12 +13,20 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protovx.h"
-#include "protowbx.h"
-#include "protowx.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_sqio.h>
+#include <esl_wuss.h>
+
+#include "pknots.h"
+#include "pk_irredsurf.h"
+#include "pk_rnaparam.h"
+#include "pk_rnaoutput.h"
+#include "pk_vxgraphs.h"
+#include "pk_wbxgraphs.h"
+#include "pk_wxgraphs.h"
+#include "pk_trace.h"
+#include "pk_tracemtx.h"
+#include "pk_util.h"
 
 #ifdef MEMDEBUG
 #include "dbmalloc.h"
@@ -53,7 +61,7 @@ Tracekn(struct tracekn_s *tr, char *seq, int rlen, int watsoncrick,
   char                  *ss;
 
   if ((ss = (char *) malloc (sizeof(char) * rlen+1)) == NULL)
-    Die("malloc failed");
+    pk_fatal("malloc failed");
   memset(ss, '.', rlen);
   ss[rlen] = '\0';
 
@@ -85,6 +93,12 @@ Tracekn(struct tracekn_s *tr, char *seq, int rlen, int watsoncrick,
       if (curr->nxtr) PushTraceknstack(dolist, curr->nxtr);
       if (curr->nxtl) PushTraceknstack(dolist, curr->nxtl);
     }
+
+  if (esl_kh2wuss(ss, ss) != eslOK) 
+    pk_fatal("Tracekn(): could not convert structure to wuss format");
+  if (esl_wuss_full(ss, ss) != eslOK) 
+    pk_fatal("Tracekn(): could not convert structure to wuss_full format");
+ 
   FreeTraceknstack(dolist);
   *ret_ss = ss;
 }
@@ -120,7 +134,7 @@ Traceintkn(struct tracekn_s *tr, char *seq, int rlen, int watsoncrick,
   int                    i;
 
   if ((ss = (int *) malloc (sizeof(int) * rlen+1)) == NULL)
-    Die("malloc failed");
+    pk_fatal("malloc failed");
 
   for (i = 0; i < rlen; i++)
     ss[i] = -1;
@@ -139,7 +153,6 @@ Traceintkn(struct tracekn_s *tr, char *seq, int rlen, int watsoncrick,
 	      ss[curr->emitj] = curr->emiti;
 	    }
 	}
-
 
       if (curr->type2 == dpcP || curr->type2 == dpcPS || curr->type2 == dpcPI || curr->type2 == dpcPL )
 	{
@@ -169,9 +182,8 @@ Traceintkn(struct tracekn_s *tr, char *seq, int rlen, int watsoncrick,
  *           not by Watson-Crick-isms and stacking rules.
  *           
  */
-
 int
-WriteSeqkn(FILE *outf, char *seq, SQINFO *sqinfo, int *ss, int format, float *ret_pairs, float *ret_cykpairs)
+WriteSeqkn(FILE *outf, ESL_SQ *sq, int *ss, float *ret_cykpairs)
 {
   int   numline = 0;
   int   lines = 0, spacer = 4, width = 20, tab = 0;
@@ -180,49 +192,21 @@ WriteSeqkn(FILE *outf, char *seq, SQINFO *sqinfo, int *ss, int format, float *re
   char  s[100];			/* buffer for sequence  */
   int   pos[100];		/* buffer for structure */
   int   lss[100];		/* buffer for secondary structure */
-  int   checksum = 0;
   int   seqlen;   
-  int   dostruc;		/* TRUE to print structure lines*/
-  int   pairs = 0;
   int   cykpairs = 0;
 
-  dostruc    = FALSE;		
-  seqlen     = (sqinfo->flags & SQINFO_LEN) ? sqinfo->len : strlen(seq);
+  seqlen = strlen(sq->seq);
 
   strcpy( endstr,"");
   l1 = 0;
 
-  /* 10Nov91: write this out in all possible formats: */
-  checksum = GCGchecksum(seq, seqlen);
+  fprintf(outf, "NAM  %s\n", sq->name);
 
-  fprintf(outf, "NAM  %s\n", sqinfo->name);
-
-  if (sqinfo->flags & (SQINFO_ID | SQINFO_ACC | SQINFO_START | SQINFO_STOP | SQINFO_OLEN))
-    fprintf(outf, "SRC  %s %s %d..%d::%d\n",
-	    (sqinfo->flags & SQINFO_ID)    ? sqinfo->id     : "-",
-	    (sqinfo->flags & SQINFO_ACC)   ? sqinfo->acc    : "-",
-	    (sqinfo->flags & SQINFO_START) ? sqinfo->start  : 0,
-	    (sqinfo->flags & SQINFO_STOP)  ? sqinfo->stop   : 0,
-	    (sqinfo->flags & SQINFO_OLEN)  ? sqinfo->olen   : 0);
-
-  if (sqinfo->flags & SQINFO_DESC)
-    fprintf(outf, "DES  %s\n", sqinfo->desc);
-
-  if (sqinfo->flags & SQINFO_SS) {
-    fprintf(outf, "SEQ  +SS\n");
-    dostruc = TRUE;	/* print structure lines too */
-  }
-  else
-    fprintf(outf, "SEQ\n");
+  fprintf(outf, "SEQ\n");
 
   numline = 1;                /* number seq lines w/ coords  */
   strcpy(endstr, "\n");
 
-  if(format == kSquid || format == kSelex)
-    for (i = 0; i < seqlen; i++) 
-      if (sqinfo->ss[i] != '.') 
-	pairs += 1;
-  
   for (i=0, l=0, ibase = 1, lines = 0; i < seqlen; ) {
 
     if (l1 < 0) 
@@ -253,10 +237,10 @@ WriteSeqkn(FILE *outf, char *seq, SQINFO *sqinfo, int *ss, int format, float *re
     }
 
     pos[l] = i;
-    s[l]   = *(seq+i);
+    s[l]   = *(sq->seq+i);
       
-    if (ss[i] != -1) {
-      lss[l]  = ss[i];
+    if (ss[i+1] != 0) {
+      lss[l]  = ss[i+1];
       cykpairs += 1;
     }
     else 
@@ -268,58 +252,54 @@ WriteSeqkn(FILE *outf, char *seq, SQINFO *sqinfo, int *ss, int format, float *re
       s[l]  = '\0';
       lss[l] = 888888;
       
-      if (dostruc) {
-	fprintf(outf, "%s\n", s);
-	
-	if (numline) 
-	  fprintf(outf,"         ");
-	
-	for (j=0; j<tab; j++) 
-	  fputc(' ',outf);
-	
-	for (m=0; m<l; m++)
+      fprintf(outf, "%s\n", s);
+      
+      if (numline) 
+	fprintf(outf,"         ");
+      
+      for (j=0; j<tab; j++) 
+	fputc(' ',outf);
+      
+      for (m=0; m<l; m++)
 	  if (s[m] != ' '  &&  pos[m] <= 9) 
 	    fprintf(outf,"%d   ", *(pos+m));
 	  else if (s[m] != ' '  && pos[m] > 9 && pos[m] <= 99) 
 	    fprintf(outf,"%d  ", *(pos+m));
 	  else if (s[m] != ' ') 
 	    fprintf(outf,"%d ", *(pos+m));
-	
-	fprintf(outf,"\n");
-	
-	if (numline) 
-	  fprintf(outf,"         ");
-	
-	for (j = 0; j < tab; j++) 
-	  fputc(' ',outf);
-	
-	for (m = 0; m < l; m++)
-	  if (s[m] != ' '  && lss[m] <= 9 && lss[m] != 56789)
-	    fprintf(outf,"%d   ", *(lss+m));
-	  else if (s[m] != ' '  && lss[m] > 9 && lss[m] <= 99 && lss[m] != 56789)
-	    fprintf(outf,"%d  ", *(lss+m));
-	  else if (s[m] != ' ' && lss[m] != 56789)
-	    fprintf(outf,"%d ", *(lss+m));
-	  else if (s[m] != ' ') 
-	    fprintf(outf, ".   ");
-	
-	fprintf(outf,"%s\n",endstr);
-      }
-      else {
-	if (i == seqlen) fprintf(outf,"%s%s\n",s,endstr);
-	else fprintf(outf,"%s\n",s);
-      }
+      
+      fprintf(outf,"\n");
+      
+      if (numline) 
+	fprintf(outf,"         ");
+      
+      for (j = 0; j < tab; j++) 
+	fputc(' ',outf);
+      
+      for (m = 0; m < l; m++)
+	if (s[m] != ' '  && lss[m] <= 9 && lss[m] != 56789)
+	  fprintf(outf,"%d   ", *(lss+m));
+	else if (s[m] != ' '  && lss[m] > 9 && lss[m] <= 99 && lss[m] != 56789)
+	  fprintf(outf,"%d  ", *(lss+m));
+	else if (s[m] != ' ' && lss[m] != 56789)
+	  fprintf(outf,"%d ", *(lss+m));
+	else if (s[m] != ' ') 
+	  fprintf(outf, ".   ");
+      
+      fprintf(outf,"%s\n",endstr);
+ 
       l = 0; l1 = 0;
       lines++;
       ibase = i+1;
     }
   }
 
-  *ret_pairs    = pairs/2;
   *ret_cykpairs = cykpairs/2;
 
   return lines;
 } 
+
+
 
 /* Function: IsRNAComplement()
  * 
@@ -342,154 +322,4 @@ IsRNAComplement(char sym1, char sym2, int allow_gu)
   else
     return FALSE;
 }
-
-void
-CalculatePairs(SQINFO sqinfo, int *ss, int format, float *ret_pairs, float *ret_cykpairs)
-{
-  int i;
-  float pairs = 0.;
-  float cykpairs = 0.;
-
-  for (i = 0; i < sqinfo.len; i++) {
-    if ((format == kSquid || format == kSelex ) && sqinfo.ss[i] != '.') 
-      pairs += 1.;
-    if (ss[i] != -1) 
-      cykpairs += 1.;
-  }
-
-  *ret_pairs    = pairs/2.;
-  *ret_cykpairs = cykpairs/2.;
-}
-
-
-
-void
-PrintCtSeq(FILE *ofp, SQINFO *sqinfo, char *seq, int start, int L, char *ss)
-{
-  int   i, pos;
-  int   line = 50;
-  int   nlines = 0;
-
-  pos = start;
-  fprintf (ofp, "\n");
-  
-  while (L/(pos+1)) {
-     fprintf (ofp, "\n\t");
-     for (i = 0; i < line; i++)
-       if (i == 0)         fprintf (ofp, "%15.15s  %c", "SS", ss[pos+i]);
-       else if (pos+i < L) fprintf (ofp, "%c", ss[pos+i]);
-     
-     fprintf (ofp, "\n\t");
-     for (i = 0; i < line; i++)
-       if (i == 0)        fprintf (ofp, "%15.15s  %c", sqinfo->name, seq[pos+i]);
-       else if (pos+i < L) fprintf (ofp, "%c", seq[pos+i]);
-     
-     nlines++;
-     pos += line;
-     fprintf (ofp, "\n");
-   }
-   
-   fprintf (ofp, "\n");
-}
-
-/* Function: CompareRNAStrutures()
- * 
- * ER, Tue Oct  9 15:19:38 CDT 2001 
- *
- * Purpose:  given 2 secondary structures, compare them
- *
- *
- * C coefficient: Matthews correction factor.
- *
- *   Matthews, BW (1975) 
- *   Comparison of the predicted and observed secondary structure of T4 phage Lysozyme.
- *   Biochem. Biophys. Acta, 405, 442-451.
- *
- *   Pt = true  positives = agree.
- *   Pf = false positives = pairs - agree.
- *
- *   Nt = ture  negatives = total unpaired in both sequences.
- *   Nf = false negatives = pairs_true - agree;
- *
- *
- *   C =( Pt*Nt - Pf*Nf) / sqrt[ (Nt+Nf) * (Nt+Pf) * (Pt+Nf) * (Pt+Pf) ]
- *
- *   under the approximations Nf/Nt -> 0 and Pf/Nt ->0 for N -> infty
- *                            Pt > 0 with at least Pt \sim Pf or Pt sim Nf
- *
- *   C_app = sqrt[ Pt/(Pt+Nf) * Pt/(Pt+Pf) ] (geometric mean of sensitivity and specifity)
- *
- */
-void
-CompareRNAStructures(FILE *ofp, int start, int L, char *ss_true, int *cc)
-{
-  int  *cc_true;
-  int   i;
-  float sen, spe;
-  float c;                  /* Matthews coefficient             */
-  float c_ap;               /* approximate Matthews coefficient */
-  float agree = 0.;         /* agree      = Pt                  */
-  float pairs = 0.;         /* pairs      = Pt + Pf             */
-  float pairs_true = 0.;    /* pairs_true = Pt + Nf             */    
-  float Pf, Pt;
-  float Nf;
-  float Nt = 0.;
-  int   verbose = FALSE;
- 
-  KHS2ct(start+ss_true, L, TRUE, &cc_true);
-
-  if (verbose) 
-    for (i = 0; i < L; i++) printf(" %d %d %d\n", i, cc_true[i], cc[i]);
-  
-  for (i = 0; i < L; i++) {
-    if (cc_true[i] != -1) pairs_true += 1.; else Nt += 1.;
-    if (cc[i]      != -1) pairs      += 1.; else Nt += 1.;
-
-    if (cc_true[i] != -1 && cc_true[i] == cc[i]) agree += 1.;
-  }
-
-  Pt = agree;
-  Pf = pairs      - agree;
-  Nf = pairs_true - agree;
-
-  sen = 100.*Pt/(Pt+Nf);
-  spe = 100.*Pt/(Pt+Pf);
-
-  c    = 100.*( Pt*Nt - Pf*Nf) / sqrt( (Nt+Nf) * (Nt+Pf) * (Pt+Nf) * (Pt+Pf) ); /* not  very useful */
-  c_ap = sqrt(sen * spe);
-
-  fprintf(ofp, "true pairs %.1f\t found pairs %.1f\t agree %.1f (sen=%.2f spe=%.2f -- C_ap = %.2f)\n", 
-	  pairs_true/2.0, pairs/2.0, agree/2.0, 
-	  sen, spe, c_ap);
-
-  if (((int)pairs%2 != 0) || ((int)pairs_true%2 != 0) || ((int)agree%2 != 0)) 
-    Die("Error in CompareRNAStrutures(); odd number of paired nucleotides\n");
-
-  if ( ((int)Nt%2 != 0) ) 
-    Die("Error in CompareRNAStrutures(); odd number of total unpaired nucleotides\n");
-
-
-  free(cc_true);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

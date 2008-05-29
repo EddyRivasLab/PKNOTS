@@ -5,7 +5,7 @@
  */
 
 #include <stdio.h>
-#include "cfg.h"
+#include "pknots.h"
 
 #ifdef MEMDEBUG
 #include "dbmalloc.h"

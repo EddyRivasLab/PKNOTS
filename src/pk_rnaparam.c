@@ -10,9 +10,16 @@
 #include <string.h>
 #include <math.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_alphabet.h>
+#include <esl_sq.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"
+#include "pk_model.h"
+#include "pk_rnaparam.h"
+#include "pk_trace.h"
+#include "pk_util.h"
 
 /* Function: Parameters2_Zkn()
  * 
@@ -32,7 +39,7 @@ Parameters2_Zkn(struct rnapar_2 *rnapar)
   int k,l;
 
   int **iseq;
-  int tlp, ntlp, isc;
+  int   tlp, ntlp, isc;
   
   /* Freier/Turner/Tinoco Rules
    * Thermodynamic parameters for RNA structure
@@ -382,11 +389,11 @@ Parameters2_Zkn(struct rnapar_2 *rnapar)
     rnapar->tetraloop[tlp]  = 0.0;
 
   if ((iseq = (int **) malloc (30 * sizeof(int *))) == NULL)
-    Die("malloc failed");
+    pk_fatal("malloc failed");
 
   for (ntlp = 0; ntlp < 30; ntlp++)
     if ((iseq[ntlp] = (int *) malloc (6 * sizeof(int))) == NULL)
-      Die("malloc failed");
+      pk_fatal("malloc failed");
 
                  /* assign the sequences of the ultrastable tetraloops */
   for (ntlp = 0; ntlp < 30; ntlp++)
@@ -398,8 +405,8 @@ Parameters2_Zkn(struct rnapar_2 *rnapar)
   for (ntlp = 0; ntlp < 30; ntlp++)
     {
       /* convert ultrastable sequences to 0..3 */
-      IntizeSequence(rnapar->tloop[ntlp], 6, &iseq[ntlp]); 
-
+      IntizeSequence(rnapar->tloop[ntlp], 6, &iseq[ntlp]);
+ 
       isc = iseq[ntlp][0] + iseq[ntlp][1]*4 
 	+ iseq[ntlp][2]*4*4 + iseq[ntlp][3]*4*4*4 
 	+ iseq[ntlp][4]*4*4*4*4 + iseq[ntlp][5]*4*4*4*4*4;		

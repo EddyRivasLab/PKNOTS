@@ -12,10 +12,14 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "protovx.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"
+#include "pk_irredsurf.h"
+#include "pk_vxgraphs.h"
+#include "pk_trace.h"
+#include "pk_util.h"
 
 /*  FUNCTION: V1
  *   
@@ -24,7 +28,7 @@
  *  Return: V1           
  */
 int 
-V1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d)
+V1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int j, int d)
 { 
   int V1;
   
@@ -46,7 +50,7 @@ trace_V1(FILE *outf, int **vx, int j, int d,
  *  Return: V2           
  */
 int 
-V2(int *s, int len, struct rnapar_2 *rnapar,
+V2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar,
    int **icfg, int **vx, int j, int d, int mid1, int mid2)
 { 
   int V2;
@@ -57,7 +61,7 @@ V2(int *s, int len, struct rnapar_2 *rnapar,
 }
 
 void
-trace_V2(FILE *outf, int **vx, int *s, int len, struct rnapar_2 *rnapar, int **icfg, 
+trace_V2(FILE *outf, int **vx, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, 
 	 int j, int d, int mid1, int mid2, 
 	 struct tracekn_s *curr_tr, struct traceknstack_s *dolist, int traceback)
 {  
@@ -93,7 +97,7 @@ trace_V2(FILE *outf, int **vx, int *s, int len, struct rnapar_2 *rnapar, int **i
  
 /* (V3_1)__/no danglings */
 int 
-V3_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
+V3_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
 {
   int V3_1;
   int    i;
@@ -132,7 +136,7 @@ trace_V3_1(FILE *outf, int **wbx, int j, int d, int mid,
 
 /*  (V3_2)__/ i+1 dangles off i,j */           
 int 
-V3_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
+V3_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
 {
   int V3_2;
   int    i;
@@ -173,7 +177,7 @@ trace_V3_2(FILE *outf, int **wbx, int j, int d, int mid,
 
 /*  (V3_3)__/ j-1 dangles off i,j */
 int 
-V3_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
+V3_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
 {
   int V3_3;
   int    i;
@@ -214,7 +218,7 @@ trace_V3_3(FILE *outf, int **wbx, int j, int d, int mid,
 
 /*  (V3_4)__/ i+1 and j-1 dangle off i,j */
 int 
-V3_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
+V3_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int j, int d, int mid)
 {
   int V3_4;
   int    i;
@@ -268,7 +272,7 @@ trace_V3_4(FILE *outf, int **wbx, int j, int d, int mid,
 
 /*  (V4_1)__/ no danglings / coaxial = stack + 1 */
 int 
-V4_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_1;
   int    i;
@@ -307,7 +311,7 @@ trace_V4_1(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /* (V4_2)__/ j-1 dangles off i,j */
 int 
-V4_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_2;
   int    i;
@@ -347,7 +351,7 @@ trace_V4_2(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V4_3)__/ i+mid+2 dangles off i+1,i+mid+1 */
 int
-V4_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_3;
   int    i;
@@ -387,7 +391,7 @@ trace_V4_3(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V4_4)__/ j-1 dangles off i,j / i+mid+2 dangles off i+1,i+mid+1 */
 int 
-V4_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_4;
   int    i;
@@ -436,7 +440,7 @@ trace_V4_4(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V4_5)__/ no danglings  */
 int 
-V4_5(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_5(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_5;
   int    i;
@@ -475,7 +479,7 @@ trace_V4_5(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /* (V4_6)__/ j-1 dangles off i,j */
 int 
-V4_6(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_6(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_6;
   int    i;
@@ -515,7 +519,7 @@ trace_V4_6(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V4_7)__/ i+mid+3 dangles off i+2,i+mid+2 */
 int
-V4_7(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_7(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_7;
   int    i;
@@ -555,7 +559,7 @@ trace_V4_7(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V4_8)__/ j-1 dangles off i,j / i+mid+3 dangles off i+2,i+mid+2 */
 int 
-V4_8(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V4_8(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V4_8;
   int    i;
@@ -607,7 +611,7 @@ trace_V4_8(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_1) __/ no danglings / coaxial = stack + 1 */
 int 
-V5_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_1;
   int    i;
@@ -644,7 +648,7 @@ trace_V5_1(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_2)__/ i+1 dangles off i,j */
 int 
-V5_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_2;
   int    i;
@@ -682,7 +686,7 @@ trace_V5_2(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_3)__/ i+mid+1 dangles off i+2+mid,j-1 */
 int 
-V5_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_3;
   int    i;
@@ -721,7 +725,7 @@ trace_V5_3(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 /*  (V5_4)__/  i+1 dangles off i,j /
             /  i+mid+1 dangles off i+2+mid,j-1 */
 int 
-V5_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_4;
   int    i;
@@ -768,7 +772,7 @@ trace_V5_4(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_5) __/ no danglings */
 int 
-V5_5(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_5(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_5;
   int    i;
@@ -805,7 +809,7 @@ trace_V5_5(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_6)__/ i+1 dangles off i,j */
 int 
-V5_6(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_6(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_6;
   int    i;
@@ -843,7 +847,7 @@ trace_V5_6(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V5_7)__/ i+mid+1 dangles off i+2+mid,j-2 */
 int 
-V5_7(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_7(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_7;
   int    i;
@@ -882,7 +886,7 @@ trace_V5_7(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 /*  (V5_8)__/  i+1 dangles off i,j /
             /  i+mid+1 dangles off i+2+mid,j-2 */
 int 
-V5_8(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
+V5_8(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wbx, int **vx, int j, int d, int mid)
 {
   int V5_8;
   int    i;
@@ -936,7 +940,7 @@ trace_V5_8(FILE *outf, int **wbx, int **vx, int j, int d, int mid,
 
 /*  (V6_1) __/ no danglings / coaxial = stack + 1 */
 int 
-V6_1 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_1 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_1;
   int    i;
@@ -957,7 +961,7 @@ V6_1 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_2a) __/  mid1 = 2 / i+1 dangles off i,j / 
  */
 int 
-V6_2a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_2a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_2a;
   int     i;
@@ -978,7 +982,7 @@ V6_2a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 
 /*  (V6_2b) __/  mid1 = 2 / i+1 dangles off i+mid1 i+mid1+mid */
 int 
-V6_2b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_2b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_2b;
   int     i;
@@ -1001,7 +1005,7 @@ V6_2b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / i+mid1-1 dangles off i+mid1 i+mid1+mid /
  */
 int 
-V6_2c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_2c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_2c;
   int     i;
@@ -1024,7 +1028,7 @@ V6_2c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_3a) __/ mid2 = 2 / j-1 dangles off i,j / 
  */
 int 
-V6_3a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_3a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_3a;
   int     i;
@@ -1046,7 +1050,7 @@ V6_3a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_3b) __/  mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_3b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_3b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_3b;
   int     i;
@@ -1069,7 +1073,7 @@ V6_3b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_3c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_3c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_3c;
   int     i;
@@ -1093,7 +1097,7 @@ V6_3c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i,j /
  */
 int 
-V6_4a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4a;
   int     i;
@@ -1117,7 +1121,7 @@ V6_4a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_4b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4b;
   int    i;
@@ -1141,7 +1145,7 @@ V6_4b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / mid2 = 2 / j-1 dangles off i,j /
  */
 int 
-V6_4c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4c;
   int     i;
@@ -1165,7 +1169,7 @@ V6_4c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_4d(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4d(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4d;
   int     i;
@@ -1189,7 +1193,7 @@ V6_4d(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / i+mid1-1 dangles off i+mid1 i+mid1+mid / 
  */
 int 
-V6_4e(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4e(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4e;
   int     i;
@@ -1215,7 +1219,7 @@ V6_4e(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 / 
  */
 int 
-V6_4f(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4f(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4f;
   int     i;
@@ -1241,7 +1245,7 @@ V6_4f(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_4g(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4g(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4g;
   int     i;
@@ -1267,7 +1271,7 @@ V6_4g(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_4h(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4h(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4h;
   int     i;
@@ -1294,7 +1298,7 @@ V6_4h(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 / 
  */
 int 
-V6_4i(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_4i(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_4i;
   int     i;
@@ -1349,7 +1353,7 @@ trace_V6_CC(FILE *outf, int **vx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V6_5) __/ no danglings  */
 int 
-V6_5 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_5 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_5;
   int    i;
@@ -1370,7 +1374,7 @@ V6_5 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_6a) __/  mid1 = 2 / i+1 dangles off i,j / 
  */
 int 
-V6_6a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_6a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_6a;
   int     i;
@@ -1391,7 +1395,7 @@ V6_6a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 
 /*  (V6_6b) __/  mid1 = 2 / i+1 dangles off i+mid1 i+mid1+mid */
 int 
-V6_6b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_6b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_6b;
   int     i;
@@ -1414,7 +1418,7 @@ V6_6b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / i+mid1-1 dangles off i+mid1 i+mid1+mid /
  */
 int 
-V6_6c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_6c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_6c;
   int     i;
@@ -1437,7 +1441,7 @@ V6_6c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_7a) __/ mid2 = 2 / j-1 dangles off i,j / 
  */
 int 
-V6_7a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_7a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_7a;
   int     i;
@@ -1459,7 +1463,7 @@ V6_7a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
 /*  (V6_7b) __/  mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_7b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_7b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_7b;
   int     i;
@@ -1482,7 +1486,7 @@ V6_7b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_7c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_7c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_7c;
   int     i;
@@ -1506,7 +1510,7 @@ V6_7c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i,j /
  */
 int 
-V6_8a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8a(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8a;
   int     i;
@@ -1530,7 +1534,7 @@ V6_8a(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_8b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8b(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8b;
   int    i;
@@ -1554,7 +1558,7 @@ V6_8b(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / mid2 = 2 / j-1 dangles off i,j /
  */
 int 
-V6_8c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8c(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8c;
   int     i;
@@ -1578,7 +1582,7 @@ V6_8c(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_8d(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8d(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8d;
   int     i;
@@ -1602,7 +1606,7 @@ V6_8d(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / i+mid1-1 dangles off i+mid1 i+mid1+mid / 
  */
 int 
-V6_8e(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8e(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8e;
   int     i;
@@ -1628,7 +1632,7 @@ V6_8e(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *	      / mid2 = 2 / j-1 dangles off i+mid+mid1+1,j-mid2 / 
  */
 int 
-V6_8f(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8f(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8f;
   int     i;
@@ -1654,7 +1658,7 @@ V6_8f(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_8g(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8g(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8g;
   int     i;
@@ -1680,7 +1684,7 @@ V6_8g(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 /
  */
 int 
-V6_8h(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8h(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8h;
   int     i;
@@ -1707,7 +1711,7 @@ V6_8h(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int
  *            / j-mid2+1 dangles off i+mid+mid1+1,j-mid2 / 
  */
 int 
-V6_8i(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
+V6_8i(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **vx, int j, int d, int mid, int mid1, int mid2)
 {
   int V6_8i;
   int     i;
@@ -1761,7 +1765,7 @@ trace_V6_NCC(FILE *outf, int **vx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V7_1) __/ no danglings  */
 int 
-V7_1 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
+V7_1 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
 {
   int V7_1;
   int    i;
@@ -1797,7 +1801,7 @@ trace_V7_1(FILE *outf, int ****whx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V7_2) __/ i+1 dangles off i,j  */
 int 
-V7_2 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
+V7_2 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
 {
   int V7_2;
   int    i;
@@ -1839,7 +1843,7 @@ trace_V7_2(FILE *outf, int ****whx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V7_3) __/ j-1 dangles off i,j  */
 int 
-V7_3 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
+V7_3 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
 {
   int V7_3;
   int    i;
@@ -1881,7 +1885,7 @@ trace_V7_3(FILE *outf, int ****whx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V7_4) __/ i+1 dangles off i,j / j-1 dangles off i,j  */
 int 
-V7_4 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
+V7_4 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int j, int d, int mid, int mid1, int mid2)
 {
   int V7_4;
   int    i;
@@ -1936,7 +1940,7 @@ trace_V7_4(FILE *outf, int ****whx, int j, int d, int mid, int mid1, int mid2,
 
 /*  (V8_1) __/ i+mid+2 dangles off i+1,i+mid+1   */
 int 
-V8_1 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V8_1 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
       int j, int d, int mid, int mid1, int mid2)
 {
   int V8_1;
@@ -1975,7 +1979,7 @@ trace_V8_1(FILE *outf, int ****whx, int ****zhx, int j, int d, int mid, int mid1
 /*  (V8_2) __/ i+mid+2 dangles off i+1,i+mid+1 /  
              / j-1 dangles off i,j             */
 int 
-V8_2 (int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V8_2 (ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
       int j, int d, int mid, int mid1, int mid2)
 {
   int V8_2;
@@ -2028,7 +2032,7 @@ trace_V8_2(FILE *outf, int ****whx, int ****zhx, int j, int d, int mid, int mid1
 
 /*  (V8_3) __/ i+mid+3 dangles off i+2,i+mid+2   */
 int 
-V8_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V8_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V8_3;
@@ -2072,7 +2076,7 @@ trace_V8_3(FILE *outf, int ****whx, int ****zhx, int j, int d, int mid, int mid1
 /*  (V8_4) __/ i+mid+3 dangles off i+2,i+mid+2 /  
              / j-1 dangles off i,j             */
 int 
-V8_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V8_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V8_4;
@@ -2129,7 +2133,7 @@ trace_V8_4(FILE *outf, int ****whx, int ****zhx, int j, int d, int mid, int mid1
 
 /*  (V9_1) __/ i+mid1+1 dangling off i+mid1+2,j-1  */
 int 
-V9_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V9_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V9_1;
@@ -2169,7 +2173,7 @@ trace_V9_1(FILE *outf, int ****whx, int ****zhx,
 /*  (V9_2) __/ i+mid1+1 dangling off i+mid1+2,j-1 /
              / i+1 dangles off i,j                */
 int 
-V9_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V9_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V9_2;
@@ -2223,7 +2227,7 @@ trace_V9_2(FILE *outf, int ****whx, int ****zhx,
 
 /*  (V9_3) __/ i+mid1+1 dangling off i+mid1+2,j-2  */
 int 
-V9_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V9_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V9_3;
@@ -2268,7 +2272,7 @@ trace_V9_3(FILE *outf, int ****whx, int ****zhx,
 /*  (V9_4) __/ i+mid1+1 dangling off i+mid1+2,j-2 /
              / i+1 dangles off i,j                */
 int 
-V9_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
+V9_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****whx, int ****zhx,
      int j, int d, int mid, int mid1, int mid2)
 {
   int V9_4;
@@ -2326,7 +2330,7 @@ trace_V9_4(FILE *outf, int ****whx, int ****zhx,
 /*  (V10_1) __/ i+mid1+2 dangles off i+1+mid-mid2,i+1+mid1 /
               / i+mid+3 dangles off i+4+mid,i+mid-mid2     */
 int 
-V10_1(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_1(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_1;
   int     i;
@@ -2368,7 +2372,7 @@ trace_V10_1(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+mid+3 dangles off i+4+mid,i+mid-mid2      /
               / i+1 dangles off i,j                         */
 int 
-V10_2(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_2(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_2;
   int     i;
@@ -2416,7 +2420,7 @@ trace_V10_2(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+mid+3 dangles off i+4+mid,i+mid-mid2      /
               / j-1 dangles off i,j                         */
 int 
-V10_3(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_3(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_3;
   int     i;
@@ -2466,7 +2470,7 @@ trace_V10_3(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+1 dangles off i,j                         /
               / j-1 dangles off i,j                         */
 int 
-V10_4(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_4(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_4;
   int     i;
@@ -2523,7 +2527,7 @@ trace_V10_4(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
 /*  (V10_5) __/ i+mid1+2 dangles off i+1+mid-mid2,i+1+mid1 /
               / i+mid+3 dangles off i+4+mid,i+mid-mid2-1     */
 int 
-V10_5(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_5(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_5;
   int     i;
@@ -2569,7 +2573,7 @@ trace_V10_5(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+mid+3 dangles off i+4+mid,i+mid-mid2-1      /
               / i+1 dangles off i,j                         */
 int 
-V10_6(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_6(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_6;
   int     i;
@@ -2617,7 +2621,7 @@ trace_V10_6(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+mid+3 dangles off i+4+mid,i+mid-mid2      /
               / j-1 dangles off i,j                         */
 int 
-V10_7(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_7(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_7;
   int     i;
@@ -2668,7 +2672,7 @@ trace_V10_7(FILE *outf, int ****yhx, int j, int d, int mid, int mid1, int mid2,
               / i+1 dangles off i,j                         /
               / j-1 dangles off i,j                         */
 int 
-V10_8(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
+V10_8(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int ****yhx, int j, int d, int mid, int mid1, int mid2)
 {
   int V10_8;
   int     i;

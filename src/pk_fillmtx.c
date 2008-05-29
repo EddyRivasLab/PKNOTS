@@ -10,10 +10,16 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "squid.h"
-                                                 
+#include <easel.h>
+
+#include "pk_fillmtx.h"
+#include "pk_filltrvx.h"
+#include "pk_filltrwx.h"
+#include "pk_filltrwbx.h"
+#include "pk_filltrwhx.h"
+#include "pk_filltrvhx.h"
+#include "pk_filltrzhxyhx.h"
+                                               
 /* Function: FillMtx_nested()
  * 
  * Purpose:  The dynamic programming algorithm for folding
@@ -32,7 +38,7 @@
  *            vx, wx, wbx are filled (in that order).
  */       
 void
-FillMtx_nested(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **wbx, int **vx, int *vp, int allow_coaxials)
+FillMtx_nested(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **wbx, int **vx, int *vp, int allow_coaxials)
 {
   int j;			/* row index (sequence end position)               */
   int d;		        /* column indices ("distance from diagonal")       */
@@ -115,7 +121,7 @@ FillMtx_nested(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, i
  *            vx, wx, wbx, vhx, zhx, yhx, whx are filled (in that order).
  */       
 void
-FillMtx(int *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **wbx, int **vx, int *vp, 
+FillMtx(ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, int **wx, int **wbx, int **vx, int *vp, 
 	int ****whx, int ****vhx, int ****zhx, int ****yhx, int allow_coaxials, int approx)
 {
   int j;			/* row index (sequence end position)               */

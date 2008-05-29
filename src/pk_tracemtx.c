@@ -10,9 +10,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cfg.h"
-#include "proto.h"
-#include "squid.h"
+#include <easel.h>
+#include <esl_sqio.h>
+
+#include "pknots.h"
+#include "pk_rnaparam.h"
+#include "pk_trace.h"
+#include "pk_tracemtx.h"
+#include "pk_filltrvx.h"
+#include "pk_filltrwx.h"
+#include "pk_filltrwbx.h"
+#include "pk_filltrvhx.h"
+#include "pk_filltrwhx.h"
+#include "pk_filltrzhxyhx.h"
+#include "pk_util.h"
 
 
 /* Function: TraceMtx_nested()
@@ -35,7 +46,7 @@
  *           using FreeTracekn().
  */
 void
-TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, 
+TraceMtx_nested(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, 
 		int **wx, int **wbx, int **vx, int j, int d,
 		struct tracekn_s **ret_trace, int traceback)
 {
@@ -55,7 +66,7 @@ TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg
 
   if (len == 1) d = 0;  /* redefine d for len == 1 */
   else if (d < 0)
-    Die("check your traceback assingments");
+    pk_fatal("check your traceback assingments");
 
   
   i = j - d;
@@ -124,7 +135,7 @@ TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg
 	
 	TraceVX_nested(outf, s, len, rnapar, icfg, wbx, vx, j, d, flag, curr_tr, dolist, traceback);
 	if (*flag == FALSE)
-	  Die("something went wrong in the traceback of vx");
+	  pk_fatal("something went wrong in the traceback of vx");
 	break;
 
       /************************************* 
@@ -135,7 +146,7 @@ TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg
 	
 	TraceWX_nested(outf, s, len, rnapar, icfg, wx, vx, j, d, flag, curr_tr, dolist, traceback);
 	if (*flag == FALSE)
-	  Die("something went wrong in the traceback of wx");
+	  pk_fatal("something went wrong in the traceback of wx");
 	break;
       
       /************************************* 
@@ -146,11 +157,11 @@ TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg
 	
 	TraceWBX_nested(outf, s, len, rnapar, icfg, wbx, vx, j, d, flag, curr_tr, dolist, traceback);
 	if (*flag == FALSE)
-	  Die("something went wrong in the traceback of wbx");
+	  pk_fatal("something went wrong in the traceback of wbx");
 	break;
       
      default:
-	Die("invalid traceback matrix assignement");
+	pk_fatal("invalid traceback matrix assignement");
       }
    } /* while something is in the trace stack */
   
@@ -180,7 +191,7 @@ TraceMtx_nested(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg
  *           using FreeTracekn().
  */
 void
-TraceMtx(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg, 
+TraceMtx(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **icfg, 
 	 int **wx, int **wbx, int **vx, 
 	 int ****whx, int ****vhx, int ****zhx, int ****yhx,
 	 int j, int d, int d1, int d2, int approx,  
@@ -200,7 +211,7 @@ TraceMtx(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg,
 
   if (len == 1) {d = 0; d1 = 0;  d2= 0;} /* redefine d, d1, d2 for len == 1 */
   else if (d < 0 || d1 < 0 || d2 < 0)
-    Die("check your traceback assingments");
+    pk_fatal("check your traceback assingments");
   
   i = j - d;
   k = i + d1;
@@ -233,7 +244,7 @@ TraceMtx(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg,
      d2 = j - l;
      
      if (d < 0 || d1 < 0 || d2 < 0)
-       Die("check your traceback assingments");
+       pk_fatal("check your traceback assingments");
      
      if (d == 0) continue;
      
@@ -289,7 +300,7 @@ TraceMtx(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg,
        *************************************/
       case VX: 
 	if (zhx[j][d][d1][d2] != vx[j][d])
-	  Die("zhx is not correctly assigned");
+	  pk_fatal("zhx is not correctly assigned");
 	  
 	if (traceback) fprintf(outf,"tracing VX  %d   \n", vx[j][d]);
 	
@@ -348,7 +359,7 @@ TraceMtx(FILE *outf, int *s, int len, struct rnapar_2 *rnapar, int **icfg,
 	break;
 
       default:
-	Die("invalid traceback matrix assignement");
+	pk_fatal("invalid traceback matrix assignement");
       }
    } /* while something is in the trace stack */
   
