@@ -8,130 +8,116 @@
 #include <string.h>
 #include <assert.h>
 
+#include <easel.h>
+#include <esl_alphabet.h>
+#include <esl_sqio.h>
+#include <esl_wuss.h>
+
 #include "version.h"
 #include "cfg.h"
 #include "proto.h"
 #include "protovx.h"
 #include "protowbx.h"
 #include "protowx.h"
-#include "squid.h" 
 
 #ifdef MEMDEBUG
 #include "dbmalloc.h"
 #endif
               
-static struct opt_s OPTIONS[] = {
-  { "-g",        TRUE,  sqdARG_NONE  },
-  { "-h",        TRUE,  sqdARG_NONE  },
-  { "-c",        TRUE,  sqdARG_NONE  },
-  { "-k",        TRUE,  sqdARG_NONE  },
-  { "-o",        TRUE,  sqdARG_STRING},
-  { "-s",        TRUE,  sqdARG_NONE  },
-  { "-t",        TRUE,  sqdARG_NONE  },
-  { "-v",        TRUE,  sqdARG_NONE  },
-};
-                
-#define NOPTIONS (sizeof(OPTIONS) / sizeof(struct opt_s))
-
-static char usage[]  = "\
-Usage: pknots [-options] <seqfile in>\n\
-where options are:\n\
-   -g            : ct output\n\
-   -h            : print short help and usage info\n\
-   -c            : add V6 the time consuming (N^5) coaxials\n\
-   -k            : allow pseudoknots\n\
-   -o <outfile>  : direct structure-annotated sequence to <outfile>\n\
-   -s            : shuffle the sequences\n\
-   -t            : print traceback\n\
-   -v            : verbose debugging output\n\
-";
-
-static char banner[] = 
-"PKNOTS: optimal minimum-energy RNA folding with pseudoknots and coaxial energies";
-
 static void ct_output(FILE *ofp, char *seq, SQINFO sqinfo, int *ss, int j, int d);
 static void param_output(FILE *outf, struct rnapar_2 zkn_param, 
 			 int format, int shuffleseq, int allow_pseudoknots, 
 			 int approx, int score, float pairs, float cykpairs);
 
+static ESL_OPTIONS options[] = {
+ /* name                type             default  env_var range   toggles req   incompat help                                      docgroup */
+  { "-c",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "add L^5 coaxials (V6)",                  0 },
+  { "-g",               eslARG_STRING,   NULL,    NULL,   NULL,   NULL,   NULL, NULL,    "save ct-format files",                   0 },
+  { "-h",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "show help and usage",                    0 },
+  { "-k",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "allow pseudoknots",                      0 },
+  { "-s",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "shuffle sequences",                      0 },
+  { "-t",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "print traceback",                        0 },
+  { "-v",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "be verbose?",                            0 },
+  {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+};
+
+static char usage[] = "\
+Usage: ./pknots [-options] <infile> <outfile>\n\
+ where <infile> is a fasta or Stockholm file with sequences to fold\n\
+ results in Stockholm format are saved to <outfile>.\n\
+ \n\
+ Available options are:\n\
+   -g      : ct output\n\
+   -h      : print short help and usage info\n\
+   -c      : add V6 the time consuming (N^5) coaxials\n\
+   -k      : allow pseudoknots\n\
+   -s      : shuffle the sequences\n\
+   -t      : print traceback\n\
+   -v      : verbose debugging output\n\
+"
+;
+
 int
 main(int argc, char **argv)
 { 
-  struct rnapar_2 zkn_param;    /* rna parameters secon order + knots              */
-  struct tracekn_s      *tr;	/* traceback of a predicted RNA structure          */
-  char                 *seq;	/* sequence to fold                                */
-  SQINFO             sqinfo;    /* info structures for seq                         */
-  char                  *cc;    /* secondary structure (should go to SQINFO)       */
-  int                   *ss;    /* secondary structure (should go to SQINFO)       */
-  char             *seqfile;    /* input sequence file                             */
-  SQFILE              *sqfp;	/* open sequence file                              */
-  int                format;    /* format of sequence file                         */
-  int                **icfg;    /* integer log form grammar for alignment          */
-  int                 score;    /* score of predicted structure                    */
-  float               pairs;    /* number of base paired as input                  */
-  float            cykpairs;    /* number of base paired of predicted structure    */
+  struct rnapar_2   zkn_param;          /* rna parameters secon order + knots              */
+  struct tracekn_s *tr; 	        /* traceback of a predicted RNA structure          */
+  char             *seqfile;            /* input sequence file                             */
+  char             *outfile;            /* where to send the output                        */
+  ESL_GETOPTS      *go;
+  ESL_SQFILE       *sqfp;      	        /* open sequence file                              */
+  ESL_SQ           *sq;
+  ESL_ALPHABET     *abc;
+  int             **icfg;               /* integer log form grammar for alignment          */
+  int               L;
+  CYKVAL            sc;                 /* score of predicted structure                    */
+  float             pairs;              /* number of base paired as input                  */
+  float             cykpairs;           /* number of base paired of predicted structure    */
 
-  int               verbose;    /* TRUE to be extremely verbose to debug           */
-  char             *outfile;    /* where to send the output                        */
-  FILE                 *ofp;	/* open output file                                */
+  int               approx;             /* TRUE  == external pseudoknot approximation      *
+				         *          exclude diagrams V7-V10 and WB9-WB10   *
+				         * FALSE == full pseudoknot model                  *
+				           include diagrams V7-V10 and WB9-WB10   */
+  int               allow_coaxials;     /* TRUE add V6 coaxial diagrams                    */
+  int               allow_pseudoknots;	/* TRUE  == include pseudoknots                    *
+				         * FALSE == no pseudoknots                         */
+  int               ctoutput;           /* TRUE print ctoutput                             */
+  int               shuffleseq;         /* TRUE to shuffle the sequences                   */
+  int               traceback;          /* TRUE print traceback                            */
+  int               verbose;            /* TRUE to be extremely verbose to debug           */
+  int               i;
+  int               status;
+  
+  /* Process command line
+   */
+  if ((go = esl_getopts_Create(options)) == NULL)      esl_fatal("Bad option structure\n");
+  if (esl_opt_ProcessCmdline(go, argc, argv) != eslOK) esl_fatal("Failed to parse command line: %s\n", go->errbuf);
+  if (esl_opt_VerifyConfig(go)               != eslOK) esl_fatal("Failed to parse command line: %s\n", go->errbuf);
 
-  char             *optname;
-  char              *optarg; 
-  int                optind;	
-  int             traceback;    /* TRUE print traceback                            */
-  int              ctoutput;    /* TRUE print ctoutput                             */
-  int        allow_coaxials;    /* TRUE add V6 coaxial diagrams                    */
-  int            shuffleseq;    /* TRUE to shuffle the sequences                   */
-  int     allow_pseudoknots;	/* TRUE  == include pseudoknots                    *
-				 * FALSE == no pseudoknots                         */
-  int                approx;    /* TRUE  == external pseudoknot approximation      *
-				 *          exclude diagrams V7-V10 and WB9-WB10   *
-				 * FALSE == full pseudoknot model                  *
-				            include diagrams V7-V10 and WB9-WB10   */
-  int                     i;
+  if (esl_opt_GetBoolean(go, "-h") == TRUE) {
+    puts(usage); 
+    puts("\n  where options are:");
+    esl_opt_DisplayHelp(stdout, go, 0, 2, 80); /* 0=all docgroups; 2=indentation; 80=width */
+    return 0;
+  }
+  if (esl_opt_ArgNumber(go) != 3) esl_fatal("Incorrect number of command line arguments.\n%s\n", usage);
+ 
+  allow_coaxials    = esl_opt_GetBoolean(go, "-c");
+  ctoutput          = esl_opt_GetBoolean(go, "-g");
+  allow_pseudoknots = esl_opt_GetBoolean(go, "-k");
+  shuffleseq        = esl_opt_GetBoolean(go, "-s");
+  traceback         = esl_opt_GetBoolean(go, "-t");
+  verbose           = esl_opt_GetBoolean(go, "-v");
 
-#ifdef MEMDEBUG
-  unsigned long histid1, histid2, orig_size, current_size;
-  orig_size = malloc_size(&histid1);
-#endif
+  seqfile = esl_opt_GetArg(go, 1);
+  outfile = esl_opt_GetArg(go, 2);
+  esl_getopts_Destroy(go);
 
   /*********************************************** 
-   * Parse command line
+   * Create the starting model 
    ***********************************************/
-                                 
-  verbose           = FALSE;
-  outfile           = NULL;
-  traceback         = FALSE;    /* TRUE  ==  print traceback         */
-  ctoutput          = FALSE;    /* TRUE  ==  print ctoutput          */
-  shuffleseq        = FALSE;    /* TRUE  ==  shuffle the sequence    */
-  allow_coaxials    = FALSE;    /* TRUE  ==  include V6     diagrams */
-  allow_pseudoknots = FALSE;    /* TRUE  ==  pseudoknots             */
-  approx            = FALSE;    /* FALSE ==  includes V7-V10 and WB9-WB10 diagrams */
-
-  while (Getopt(argc, argv, OPTIONS, NOPTIONS, usage,
-		&optind, &optname, &optarg))
-    {
-           if (strcmp(optname, "-c") == 0) allow_coaxials    = TRUE;
-      else if (strcmp(optname, "-g") == 0) ctoutput          = TRUE;
-      else if (strcmp(optname, "-k") == 0) allow_pseudoknots = TRUE;
-      else if (strcmp(optname, "-o") == 0) outfile           = optarg;
-      else if (strcmp(optname, "-s") == 0) shuffleseq        = TRUE;
-      else if (strcmp(optname, "-t") == 0) traceback         = TRUE;
-      else if (strcmp(optname, "-v") == 0) verbose           = TRUE;
-      
-      else if (strcmp(optname, "-h") == 0) 
-	{
-	  puts(banner); 
-	  printf("         PKNOT %s (%s)", RELEASE, RELEASEDATE);
-	  printf(" using squid %s (%s)\n", squid_version, squid_date);
-	  puts(usage);
-	  exit(0);
-	}
-    }
-
-  if (argc - optind != 1)
-    Die("Incorrect number of command line arguments.\n%s\n", usage);
-  seqfile  = argv[optind]; 
+  Parameters2_Zkn(&zkn_param);
+  icfg = ParamIntSCFG(&zkn_param); 
 
   /*********************************************** 
    * Open sequence file and output file
@@ -147,11 +133,15 @@ main(int argc, char **argv)
   if (outfile != NULL && (ofp = fopen(outfile, "w")) == NULL)
     Die("Failed to open output file %s", outfile);
  
-  /*********************************************** 
-   * Create the starting model 
-   ***********************************************/
-  Parameters2_Zkn(&zkn_param);
-  icfg = ParamIntSCFG(&zkn_param); 
+  /* Open the output file and the input seqfile.
+   */
+  if ((fp = fopen(outfile, "w")) == NULL) 
+    pk_fatal("failed to open %s for output", outfile);
+  if (esl_sqfile_Open(seqfile, infmt, NULL, &sqfp) != eslOK)
+    pk_fatal("failed to open %s", seqfile);
+  sq = esl_sq_Create();
+
+
  
   /*********************************************** 
    * Print banner
@@ -164,6 +154,26 @@ main(int argc, char **argv)
   printf("Folding sequences from:  %s \n", seqfile);
   printf("---------------------------------------------------\n");
   puts("");
+
+  /* OK, start folding.
+   */
+  while ((status = esl_sqio_Read(sqfp, sq)) == eslOK) 
+    {
+      L   = sq->n;
+
+      if (verbose) {
+	printf("SEQ:\n");
+	for (i = 0; i < L; i++) printf("%c ", seq[i]);
+	printf("\n");
+      }
+     
+      ESL_ALLOC(sq->dsq, sizeof(char) * (L+2));
+
+      if (esl_abc_Digitize(abc, sq->seq, sq->dsq) != eslOK)
+	pk_fatal("failed to digitize sequence");
+
+
+    }
 
   while (ReadSeq(sqfp, format, &seq, &sqinfo))
     {
@@ -214,10 +224,12 @@ main(int argc, char **argv)
    * Cleanup and exit
    ***********************************************/
 
-  if (outfile != NULL) fclose(ofp);
   FreeIntSCFG(icfg);
-  SeqfileClose(sqfp);
-  return EXIT_SUCCESS;
+  esl_sq_Destroy(sq);
+  esl_sqfile_Close(sqfp);
+  esl_alphabet_Destroy(abc);
+  fclose(fp);
+  exit (0);
 }
 
 
