@@ -57,15 +57,6 @@ Usage: ./pknots [-options] <infile> <outfile>\n\
  where <infile> is a fasta or Stockholm file with sequences to fold\n\
  results in Stockholm format are saved to <outfile>.\n\
  \n\
- Available options are:\n\
-   -g          : ct output\n\
-   -h          : print short help and usage info\n\
-   -c          : add V6 the time consuming (N^5) coaxials\n\
-   -k          : allow pseudoknots\n\
-   -s          : shuffle the sequences\n\
-   -t          : print traceback\n\
-   -v          : verbose debugging output\n\
-   --infmt <s> : specify that format of <infile> is <s>\n\
 "
 ;
 

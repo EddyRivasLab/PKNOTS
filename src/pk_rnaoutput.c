@@ -236,7 +236,7 @@ WriteSeqkn(FILE *outf, ESL_SQ *sq, int *ss, float *ret_cykpairs)
       l++;
     }
 
-    pos[l] = i;
+    pos[l] = i+1;
     s[l]   = *(sq->seq+i);
       
     if (ss[i+1] != 0) {
