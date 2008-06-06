@@ -57,7 +57,7 @@ TraceMtx_nested(FILE *outf, ESL_DSQ *s, int len, struct rnapar_2 *rnapar, int **
   int                    d1, d2;  /* coords in mtx's                        */
   int                   typemtx;  /* type of matrix : VX, WX, WBX           */
   int                 fl, *flag;  /* flags for the traceback                */
-                                     
+             
   /* Initialize.
    * Start at j, d, d1 = (int)(d/2), d2 = d - (int)(d/2) - 1.
    */

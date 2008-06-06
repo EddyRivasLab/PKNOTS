@@ -42,7 +42,7 @@
  * Return:   (void)
  */          
 int
-StructurePredictkn_2IS(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int len, struct rnapar_2 *rnapar, int **icfg,  
+StructurePredictkn_2IS(FILE *outf, ESL_SQ *sq, int len, struct rnapar_2 *rnapar, int **icfg,  
 		       int verbose, int traceback, struct tracekn_s **ret_tr, 
 		       int *ret_score, int allow_coaxials, int allow_pseudoknots, int approx)
 {
@@ -59,12 +59,8 @@ StructurePredictkn_2IS(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int len, struc
   int     i;
   int     status;
 
-  ESL_ALLOC(sq->dsq, sizeof(char) * (len+2));
-  if (esl_abc_Digitize(abc, sq->seq, sq->dsq) != eslOK)
-    pk_fatal("failed to digitize sequence");
-     
-  /* the dsq goes from 1..L, pknots arrays traditionally go from 0...L-1 */
-  ESL_ALLOC(dsq, sizeof(char) * (len));
+ /* the dsq goes from 1..L, pknots arrays traditionally go from 0...L-1 */
+  ESL_ALLOC(dsq, sizeof(ESL_DSQ) * (len));
   for (i = 1; i <= len; i ++) 
     dsq[i-1] = sq->dsq[i];
 

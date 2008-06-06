@@ -21,7 +21,7 @@ extern void Free_Mgp(int len, int ****whx, int ****vhx,
 		     int ****zhx, int ****yhx);
 extern void Print_2DMtx(FILE *fp, int **mtx, int len, struct rnapar_2 *rnapar);
 extern void Print_4DMtx(FILE *fp, int ****mtx, int len, struct rnapar_2 *rnapar);
-extern int  StructurePredictkn_2IS(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int len, struct rnapar_2 *rnapar,
+extern int  StructurePredictkn_2IS(FILE *outf, ESL_SQ *sq, int len, struct rnapar_2 *rnapar,
 				   int **icfg, int verbose, int traceback, struct tracekn_s **ret_tr, 
 				   int *ret_score, int allow_coaxials, int allow_pseudoknots, 
 				   int approx);
