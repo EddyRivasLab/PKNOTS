@@ -55,17 +55,20 @@ static void param_output(FILE *outf, struct rnapar_2 zkn_param,
  *
  * Return:   
  */
-void
-Tracekn(struct tracekn_s *tr, ESL_DSQ *dsq, int rlen, int watsoncrick, char *ss)  
+int
+Tracekn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick)  
 { 
   struct traceknstack_s *dolist;
   struct tracekn_s      *curr;
   int                    j;
+  int                    status;
 
-  /* initialize */
-  ss[0] = '\0';
-  for (j = 1; j <= rlen; j ++)
-    ss[j] = '.';
+  ESL_ALLOC(sq->ss, sizeof(char) * (sq->salloc));
+
+  /* initialize ss*/
+  sq->ss[0] = '\0';
+  for (j = 1; j <= sq->n; j ++)
+    sq->ss[j] = '.';
   
   dolist = InitTraceknstack();
   PushTraceknstack(dolist, tr->nxtl);
@@ -75,20 +78,20 @@ Tracekn(struct tracekn_s *tr, ESL_DSQ *dsq, int rlen, int watsoncrick, char *ss)
        if (curr->type1 == dpcP || curr->type1 == dpcPS || curr->type1 == dpcPI || curr->type1 == dpcPL)
 	{
 	  if (! watsoncrick  ||
-	      IsRNAComplementDigital(dsq[curr->emiti+1], dsq[curr->emitj+1], TRUE))
+	      IsRNAComplementDigital(sq->dsq[curr->emiti+1], sq->dsq[curr->emitj+1], TRUE))
 	    {
-	      ss[curr->emiti+1] = '<';
-	      ss[curr->emitj+1] = '>';
+	      sq->ss[curr->emiti+1] = '<';
+	      sq->ss[curr->emitj+1] = '>';
 	    }
 	}
 
       if (curr->type2 == dpcP || curr->type2 == dpcPS || curr->type2 == dpcPI || curr->type2 == dpcPL)
 	{
 	  if (! watsoncrick  ||
-	      IsRNAComplementDigital(dsq[curr->emitk+1], dsq[curr->emitl+1], TRUE))
+	      IsRNAComplementDigital(sq->dsq[curr->emitk+1], sq->dsq[curr->emitl+1], TRUE))
 	    {
-	      ss[curr->emitk+1] = '<';
-	      ss[curr->emitl+1] = '>';
+	      sq->ss[curr->emitk+1] = '<';
+	      sq->ss[curr->emitl+1] = '>';
 	    }
 	}
 
@@ -96,10 +99,14 @@ Tracekn(struct tracekn_s *tr, ESL_DSQ *dsq, int rlen, int watsoncrick, char *ss)
       if (curr->nxtl) PushTraceknstack(dolist, curr->nxtl);
     }
 
-  if (esl_wuss_full(ss, ss) != eslOK) 
+  if (esl_wuss_full(sq->ss, sq->ss) != eslOK) 
     pk_fatal("Tracekn(): could not convert structure to wuss_full format");
   
    FreeTraceknstack(dolist);
+   return eslOK;
+
+ ERROR:
+  return status;
 }
 
 /* Function: WriteSeqkn()
@@ -114,23 +121,37 @@ Tracekn(struct tracekn_s *tr, ESL_DSQ *dsq, int rlen, int watsoncrick, char *ss)
  *           
  */
 int
-WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int *ct, int ctoutput, 
+WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int ctoutput, 
 	   struct rnapar_2 zkn_param, int format, int shuffleseq, 
 	   int allow_pseudoknots, int approx, CYKVAL sc)
 {
-  int   numline = 0;
-  int   lines = 0, spacer = 4, width = 20, tab = 0;
-  int   i, j, l, l1, ibase, m;
-  char  endstr[10]; 
-  char  s[100];			/* buffer for sequence  */
-  int   pos[100];		/* buffer for structure */
-  int   lss[100];		/* buffer for secondary structure */
-  int   seqlen;   
-  int   cykpairs = 0;
-
-  if (esl_sq_Textize(sq)!= eslOK)  pk_fatal("coudnot textize %s", sq->name); /* sq is now text mode */
+  int    *ct = NULL;
+  int     numline = 0;
+  int     lines = 0, spacer = 4, width = 20, tab = 0;
+  int     i, j, l, l1, ibase, m;
+  char    endstr[10]; 
+  char    s[100];			/* buffer for sequence  */
+  int     pos[100];		/* buffer for structure */
+  int     lss[100];		/* buffer for secondary structure */
+  int     seqlen;   
+  int     cykpairs = 0;
+  int     status;
 
   seqlen = sq->n;
+
+  for (j = 1; j <= seqlen; j ++)
+    printf("ss %c dsq %d j %d\n", sq->ss[j],sq->dsq[j],j);
+
+  /* the CT array*/
+  ESL_ALLOC(ct, sizeof(int) * (seqlen+1));
+  if (esl_wuss2ct(sq->ss, seqlen, ct) != eslOK)
+    pk_fatal("could not generate ctfile");
+
+  for (j = 0; j < sq->n; j ++)
+    printf("ct %d j %d\n", ct[j],j);
+
+  /* textize sequence for output */
+  if (esl_sq_Textize(sq)!= eslOK)  pk_fatal("coudnot textize %s", sq->name); /* sq is now text mode */
 
   strcpy( endstr,"");
   l1 = 0;
@@ -171,11 +192,11 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int *ct, int ctoutput,
       l++;
     }
 
-    pos[l] = i+1;
+    pos[l] = i;
     s[l]   = *(sq->seq+i);
       
-    if (sq->ss[i+1] != 0) {
-      lss[l]  = sq->ss[i+1];
+    if (ct[i] != 0) {
+      lss[l]  = ct[i];
       cykpairs += 1;
     }
     else 
@@ -233,13 +254,18 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int *ct, int ctoutput,
 
   param_output(stdout, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc, cykpairs);
   
-  /* write ss to a stockholm file or ctfile */
+   /* write ss to a stockholm file or ctfile */ 
   if (ctoutput) ct_output(outf, sq->seq, ct, seqlen-1, seqlen-1);
   else          esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM);
 
+  /* digitize back */
   if (esl_sq_Digitize(abc, sq)!= eslOK)  pk_fatal("coudnot digitize %s", sq->name); /* sq is digital again */
 
+  free(ct);
   return lines;
+
+ ERROR:
+  return status;
 } 
 
 

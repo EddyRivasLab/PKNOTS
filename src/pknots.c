@@ -69,7 +69,6 @@ main(int argc, char **argv)
   ESL_SQ           *sq;
   ESL_ALPHABET     *abc;
   int               format = eslSQFILE_UNKNOWN;
-  int              *ct = NULL;
   int             **icfg;               /* integer log form grammar for alignment          */
   int               L;
   CYKVAL            sc;                 /* score of predicted structure                    */
@@ -169,20 +168,14 @@ main(int argc, char **argv)
 	pk_fatal("could not fold the sequence");
       
       /* convert traceback to a ss */
-      ESL_ALLOC(sq->ss, sizeof(char) * (sq->salloc));
-      Tracekn(tr, sq->dsq, L, FALSE, sq->ss);
-      
-      /* the CT array*/
-      ESL_ALLOC(ct, sizeof(int) * (L+1));
-      if (esl_wuss2ct(sq->ss+1, L, ct) != eslOK)
-	pk_fatal("could not generate ctfile");
+      if (Tracekn(tr, sq, FALSE) != eslOK)
+	pk_fatal("could not convert to ss");
       
       /* print output */
-      WriteSeqkn(ofp, abc, sq, ct, ctoutput, zkn_param, format, shuffleseq, 
+      WriteSeqkn(ofp, abc, sq, ctoutput, zkn_param, format, shuffleseq, 
 		 allow_pseudoknots, approx, sc);
       
       FreeTracekn(tr);
-      free(ct);
       esl_sq_Reuse(sq);
     }
   
@@ -197,9 +190,6 @@ main(int argc, char **argv)
   esl_alphabet_Destroy(abc);
   fclose(ofp);
   exit (0);
-
- ERROR:
-  return status;
 }
 
  
