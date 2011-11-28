@@ -116,7 +116,7 @@ main(int argc, char **argv)
   infmt = eslSQFILE_FASTA;
   if (informat != NULL)
     {
-      infmt = esl_sqio_FormatCode(informat);
+      infmt = esl_sqio_EncodeFormat(informat);
       if (infmt == eslSQFILE_UNKNOWN) 
 	pk_fatal("Unrecognized file format %s\n", informat);
     }
@@ -158,7 +158,7 @@ main(int argc, char **argv)
       
       if (verbose) {
 	printf("[Original sequence:]\n");
-	esl_sqio_Write(stdout, sq, eslSQFILE_FASTA);
+	esl_sqio_Write(stdout, sq, eslSQFILE_FASTA, FALSE);
       }
       
       if (shuffleseq) esl_rsq_CShuffle(r, sq->seq, sq->seq); /* shuffle in place */

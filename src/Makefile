@@ -1,13 +1,13 @@
 # Makefile for pknots
 #
 #
-MYLIBDIR = -L $(EASELDIR)
-MYINCDIR = -I $(EASELDIR)
+MYLIBDIR = -L$(EASELDIR)
+MYINCDIR = -I$(EASELDIR)
 
 LIBS     = -lm
 MYLIBS   = -leasel
-LFLAGS   = -L $(EASELDIR)
-IFLAGS   = -I $(EASELDIR)
+LFLAGS   = -L$(EASELDIR)
+IFLAGS   = -I$(EASELDIR)
 
 CC       = gcc
 CFLAGS   = -g -Wall
@@ -66,10 +66,10 @@ HDRS =	pknots.h\
 all: ${PROGS} $(EASELDIR)/libeasel.a
 
 ${PROGS}: %: ${OBJS} %.o 
-	${CC} ${MYINCDIR} ${CFLAGS} ${IFLAGS} ${LFLAGS} -o $@ $@.o ${OBJS} ${LIBS} ${MYLIBS} 
+	${CC} ${MYINCDIR} ${MYLIBDIR} ${CFLAGS} ${IFLAGS} ${LFLAGS} -o $@ $@.o ${OBJS} ${LIBS} ${MYLIBS} 
 
 .c.o:
-	${CC} ${MYINCDIR} ${IFLAGS} ${CFLAGS} -c $<
+	${CC} ${MYINCDIR} ${MYLIBDIR} ${IFLAGS} ${CFLAGS} -c $<
 
 clean:
 	rm *.o *~ ${PROGS}

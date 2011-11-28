@@ -259,7 +259,7 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int ctoutput,
   
    /* write ss to a stockholm file or ctfile */ 
   if (ctoutput) ct_output(outf, sq->seq, ct, sq->n-1, sq->n-1);
-  else          esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM);
+  else          esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM, FALSE);
 
   /* digitize back */
   if (esl_sq_Digitize(abc, sq)!= eslOK)  pk_fatal("coudnot digitize %s", sq->name); /* sq is digital again */
