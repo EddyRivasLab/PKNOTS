@@ -2,6 +2,6 @@
  * 
  */
 
-#define RELEASE   "2.0"    
-#define RELEASEDATE "2008"  
+#define RELEASE   "1.07"    
+#define RELEASEDATE "2011"  
 
