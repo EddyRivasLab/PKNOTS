@@ -416,6 +416,8 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
       else if (ntlp < 30) rnapar->tetraloop[isc]  = -1.5;	
     }
 
+   for (ntlp = 0; ntlp < 30; ntlp++)
+     if (iseq[ntlp] != NULL) free(iseq[ntlp]);
   if (iseq != NULL) free(iseq);
 
   *ret_rnapar = rnapar;
