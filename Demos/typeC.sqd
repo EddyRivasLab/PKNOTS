@@ -1,0 +1,40 @@
+NAM  typeC_2.3a
+SRC  typeC_2.3a - 0..47::48
+SEQ  +SS
+CAAGUUAAACAUAAUCCGUG
+..............>>>>>>
+AUCUUUCACACGGGAGAUCU
+.AAAAAAA<<<<<<......
+AUGAAAGA
+.aaaaaaa
+++
+NAM  typeC_2.5a
+SRC  typeC_2.5a - 0..40::41
+SEQ  +SS
+UCAAGAUAGUAUCCGUUCUU 
+...........>>>>.....
+GAUCAUCGGGACAAAUGAUC
+AAAAAA<<<<....aaaaaa 
+U
+a
+++
+NAM  typeC_2.6b
+SRC  typeC_2.6b - 0..45::46
+SEQ  +SS
+UCAAGUGAAACUUAACCGUU
+...............>>>.. 
+AUCAUAGAUCGGGACAAAUC
+.AAAAAAAA<<<.....aaa
+UAUGAA
+aaaaaa  
+++
+NAM  typeC_2.2b
+SRC  typeC_2.2b - 0..40::41
+SEQ  +SS
+AAUCAAGUACCUAGGUGAUA
+.........>>>..AAA... 
+AAAGGGAGAACACGUGUGAC 
+..<<<.....aaa.......
+U
+.
+++
