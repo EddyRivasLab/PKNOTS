@@ -35,12 +35,12 @@
 void
 Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
 {
-  struct rnapar_2 *rnapar;
-  int   i,j;
-  int   k,l;
-  int **iseq;
-  int   tlp, ntlp, isc;
-  int   status;
+  struct rnapar_2  *rnapar = NULL;
+  int               i,j;
+  int               k,l;
+  int             **iseq = NULL;
+  int               tlp, ntlp, isc;
+  int               status;
   
   ESL_ALLOC(rnapar, sizeof(struct rnapar_2));
 
@@ -408,7 +408,7 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
   for (ntlp = 0; ntlp < 30; ntlp++)
     {
       /* convert ultrastable sequences to 0..3 */
-      IntizeSequence(rnapar->tloop[ntlp], 6, &iseq[ntlp]);
+      IntizeSequence(rnapar->tloop[ntlp], 6, iseq[ntlp]);
  
       isc = iseq[ntlp][0] + iseq[ntlp][1]*4 
 	+ iseq[ntlp][2]*4*4 + iseq[ntlp][3]*4*4*4 
@@ -420,7 +420,10 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
       else if (ntlp < 30) rnapar->tetraloop[isc]  = -1.5;	
     }
 
+  if (iseq != NULL) free(iseq);
+
   *ret_rnapar = rnapar;
+
  ERROR:
   printf("bad allocation\n");
 }

@@ -49,14 +49,11 @@ pk_fatal(char *format, ...)
  *           ret_iseq is alloc'ed here, must be free'd by caller.
  */
 void
-IntizeSequence(char *seq, int len, int **ret_iseq)
+IntizeSequence(char *seq, int len, int *iseq)
 {
   int  i;
-  int *iseq;
 
-  if ((iseq = (int *) malloc (len * sizeof(int))) == NULL)
-    pk_fatal("malloc failed");
-  for (i = 0; i < len; i++)
+ for (i = 0; i < len; i++)
     switch (seq[i]) 
       {
       case 'A': iseq[i] = 0; break;
@@ -65,6 +62,5 @@ IntizeSequence(char *seq, int len, int **ret_iseq)
       case 'U': iseq[i] = 3; break;
       default:  iseq[i] = 4; break;
       }
-  *ret_iseq = iseq;
 }
 
