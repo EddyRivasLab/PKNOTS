@@ -59,7 +59,7 @@ int
 main(int argc, char **argv)
 { 
   ESL_RANDOMNESS   *r;
-  struct rnapar_2   zkn_param;          /* rna parameters secon order + knots              */
+  struct rnapar_2  *zkn_param;          /* rna parameters secon order + knots              */
   struct tracekn_s *tr; 	        /* traceback of a predicted RNA structure          */
   char             *seqfile;            /* input sequence file                             */
   char             *outfile;            /* where to send the output                        */
@@ -129,7 +129,7 @@ main(int argc, char **argv)
    ***********************************************/
   abc = esl_alphabet_Create(eslRNA);
   Parameters2_Zkn(&zkn_param);
-  icfg = ParamIntSCFG(&zkn_param); 
+  icfg = ParamIntSCFG(zkn_param); 
 
   /* Open the output file and the input seqfile.
    */
@@ -163,7 +163,7 @@ main(int argc, char **argv)
       
       if (shuffleseq) esl_rsq_CShuffle(r, sq->seq, sq->seq); /* shuffle in place */
       
-      if (StructurePredictkn_2IS(stdout, sq, L, &zkn_param, icfg, verbose, traceback,
+      if (StructurePredictkn_2IS(stdout, sq, L, zkn_param, icfg, verbose, traceback,
 				 &tr, &sc, allow_coaxials, allow_pseudoknots, approx) != eslOK)
 	pk_fatal("could not fold the sequence");
       
@@ -182,7 +182,7 @@ main(int argc, char **argv)
   /*********************************************** 
    * Cleanup and exit
    ***********************************************/
-
+  free(zkn_param);
   FreeIntSCFG(icfg);
   esl_randomness_Destroy(r);
   esl_sq_Destroy(sq);

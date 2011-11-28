@@ -33,14 +33,17 @@
  */
 
 void
-Parameters2_Zkn(struct rnapar_2 *rnapar)
+Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
 {
-  int i,j;
-  int k,l;
-
+  struct rnapar_2 *rnapar;
+  int   i,j;
+  int   k,l;
   int **iseq;
   int   tlp, ntlp, isc;
+  int   status;
   
+  ESL_ALLOC(rnapar, sizeof(struct rnapar_2));
+
   /* Freier/Turner/Tinoco Rules
    * Thermodynamic parameters for RNA structure
    */
@@ -416,6 +419,10 @@ Parameters2_Zkn(struct rnapar_2 *rnapar)
       else if (ntlp < 19) rnapar->tetraloop[isc]  = -2.0;	
       else if (ntlp < 30) rnapar->tetraloop[isc]  = -1.5;	
     }
+
+  *ret_rnapar = rnapar;
+ ERROR:
+  printf("bad allocation\n");
 }
 
 /* Function: ParamIntSCFG()

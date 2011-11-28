@@ -33,7 +33,7 @@
 #endif
 
 static void ct_output(FILE *ofp, char *seq, int *ct, int j, int d);
-static void param_output(FILE *outf, struct rnapar_2 zkn_param, 
+static void param_output(FILE *outf, struct rnapar_2 *zkn_param, 
 			 int format, int shuffleseq, int allow_pseudoknots, 
 			 int approx, CYKVAL sc, float cykpairs);
 
@@ -132,7 +132,7 @@ Tracekn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick)
  */
 int
 WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int ctoutput, 
-	   struct rnapar_2 zkn_param, int format, int shuffleseq, 
+	   struct rnapar_2 *zkn_param, int format, int shuffleseq, 
 	   int allow_pseudoknots, int approx, CYKVAL sc)
 {
   int    *ct = NULL;
@@ -362,7 +362,7 @@ ct_output(FILE *ofp, char *seq, int *ct, int j, int d)
  * Return:   (void)
  */          
 static void
-param_output(FILE *ofp, struct rnapar_2 zkn_param, int format, int shuffleseq, int allow_pseudoknots, int approx, 
+param_output(FILE *ofp, struct rnapar_2 *zkn_param, int format, int shuffleseq, int allow_pseudoknots, int approx, 
 	     CYKVAL sc, float cykpairs)
 {  
       fprintf(ofp,"----------------------------------------------------------------------\n");
@@ -382,13 +382,13 @@ param_output(FILE *ofp, struct rnapar_2 zkn_param, int format, int shuffleseq, i
 	fprintf(ofp,"Allow pseudoknots? NO\n");
 	fprintf(ofp,"----------------------------------------------------------------------\n");
 	fprintf(ofp,"Parameters (energy  units, kcal/mol)\n");
-	fprintf(ofp," P1   parameter:    %10.2f \n", -(float)zkn_param.P1/(INTSCALE*wsf));
-	fprintf(ofp," P2   parameter:    %10.2f \n", -(float)zkn_param.P2/(INTSCALE*wsf));
-	fprintf(ofp," P3   parameter:    %10.2f \n", -(float)zkn_param.P3/(INTSCALE*wsf));
-	fprintf(ofp," P4   parameter:    %10.2f \n", -(float)zkn_param.P4/(INTSCALE*wsf));
-	fprintf(ofp," P5   parameter:    %10.2f \n", -(float)zkn_param.P5/(INTSCALE*wsf));
-	fprintf(ofp," P6   parameter:    %10.2f \n", -(float)zkn_param.P6/(INTSCALE*wsf));
-	fprintf(ofp," P10  parameter:    %10.2f \n", -(float)zkn_param.P10/(INTSCALE*wsf));
+	fprintf(ofp," P1   parameter:    %10.2f \n", -(float)zkn_param->P1/(INTSCALE*wsf));
+	fprintf(ofp," P2   parameter:    %10.2f \n", -(float)zkn_param->P2/(INTSCALE*wsf));
+	fprintf(ofp," P3   parameter:    %10.2f \n", -(float)zkn_param->P3/(INTSCALE*wsf));
+	fprintf(ofp," P4   parameter:    %10.2f \n", -(float)zkn_param->P4/(INTSCALE*wsf));
+	fprintf(ofp," P5   parameter:    %10.2f \n", -(float)zkn_param->P5/(INTSCALE*wsf));
+	fprintf(ofp," P6   parameter:    %10.2f \n", -(float)zkn_param->P6/(INTSCALE*wsf));
+	fprintf(ofp," P10  parameter:    %10.2f \n", -(float)zkn_param->P10/(INTSCALE*wsf));
 	fprintf(ofp,"----------------------------------------------------------------------\n");
       }
       else {
@@ -396,25 +396,25 @@ param_output(FILE *ofp, struct rnapar_2 zkn_param, int format, int shuffleseq, i
 	fprintf(ofp,"----------------------------------------------------------------------\n");
 	fprintf(ofp,"Parameters (energy units, kcal/mol)\n");
 	fprintf(ofp," wkn  parameter:    %10.2f (pseudoknots weight)\n", (float)wkn/wsf);
-	fprintf(ofp," P1   parameter:    %10.2f \n", -(float)zkn_param.P1/(INTSCALE*wsf));
-	fprintf(ofp," P2   parameter:    %10.2f \n", -(float)zkn_param.P2/(INTSCALE*wsf));
-	fprintf(ofp," P3   parameter:    %10.2f \n", -(float)zkn_param.P3/(INTSCALE*wsf));
-	fprintf(ofp," P4   parameter:    %10.2f \n", -(float)zkn_param.P4/(INTSCALE*wsf));
-	fprintf(ofp," P5   parameter:    %10.2f \n", -(float)zkn_param.P5/(INTSCALE*wsf));
-	fprintf(ofp," P5P  parameter:    %10.2f \n", -(float)zkn_param.P5P/(INTSCALE*wkn));
-	fprintf(ofp," P6   parameter:    %10.2f \n", -(float)zkn_param.P6/(INTSCALE*wsf));
-	fprintf(ofp," P6P  parameter:    %10.2f \n", -(float)zkn_param.P6P/(INTSCALE*wkn));
-	fprintf(ofp," P10  parameter:    %10.2f \n", -(float)zkn_param.P10/(INTSCALE*wsf));
-	fprintf(ofp," P10P parameter:    %10.2f \n", -(float)zkn_param.P10P/(INTSCALE*wkn));
-	fprintf(ofp," P11  parameter:    %10.2f \n", -(float)zkn_param.P11/(INTSCALE*wsf));
-	fprintf(ofp," P12  parameter:    %10.2f \n", -(float)zkn_param.P12/(INTSCALE*wsf));
+	fprintf(ofp," P1   parameter:    %10.2f \n", -(float)zkn_param->P1/(INTSCALE*wsf));
+	fprintf(ofp," P2   parameter:    %10.2f \n", -(float)zkn_param->P2/(INTSCALE*wsf));
+	fprintf(ofp," P3   parameter:    %10.2f \n", -(float)zkn_param->P3/(INTSCALE*wsf));
+	fprintf(ofp," P4   parameter:    %10.2f \n", -(float)zkn_param->P4/(INTSCALE*wsf));
+	fprintf(ofp," P5   parameter:    %10.2f \n", -(float)zkn_param->P5/(INTSCALE*wsf));
+	fprintf(ofp," P5P  parameter:    %10.2f \n", -(float)zkn_param->P5P/(INTSCALE*wkn));
+	fprintf(ofp," P6   parameter:    %10.2f \n", -(float)zkn_param->P6/(INTSCALE*wsf));
+	fprintf(ofp," P6P  parameter:    %10.2f \n", -(float)zkn_param->P6P/(INTSCALE*wkn));
+	fprintf(ofp," P10  parameter:    %10.2f \n", -(float)zkn_param->P10/(INTSCALE*wsf));
+	fprintf(ofp," P10P parameter:    %10.2f \n", -(float)zkn_param->P10P/(INTSCALE*wkn));
+	fprintf(ofp," P11  parameter:    %10.2f \n", -(float)zkn_param->P11/(INTSCALE*wsf));
+	fprintf(ofp," P12  parameter:    %10.2f \n", -(float)zkn_param->P12/(INTSCALE*wsf));
 	
 	if (approx){
 	  fprintf(ofp," P13  parameter:    infinity\n");
 	  fprintf(ofp," (external pseudoknots approximation)\n");
 	}
 	else {
-	  fprintf(ofp," P13  parameter:    %10.2f \n", -(float)zkn_param.P13/(INTSCALE*wsf));
+	  fprintf(ofp," P13  parameter:    %10.2f \n", -(float)zkn_param->P13/(INTSCALE*wsf));
 	  fprintf(ofp," full pseudoknot model.\n");
 	fprintf(ofp,"----------------------------------------------------------------------\n");
 	}
