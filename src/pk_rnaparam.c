@@ -390,20 +390,16 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
    */
    for (tlp = 0; tlp < 4096; tlp++)
     rnapar->tetraloop[tlp]  = 0.0;
-
-  if ((iseq = (int **) malloc (30 * sizeof(int *))) == NULL)
-    pk_fatal("malloc failed");
-
-  for (ntlp = 0; ntlp < 30; ntlp++)
-    if ((iseq[ntlp] = (int *) malloc (6 * sizeof(int))) == NULL)
-      pk_fatal("malloc failed");
-
-                 /* assign the sequences of the ultrastable tetraloops */
-  for (ntlp = 0; ntlp < 30; ntlp++)
-    for (i = 0; i < 6; i++)
-      rnapar->tloop[ntlp][i] = tloop[ntlp][i];
-
-
+   
+   ESL_ALLOC(iseq, sizeof(int *) * 30);
+   for (ntlp = 0; ntlp < 30; ntlp++)
+     ESL_ALLOC(iseq[ntlp], sizeof(int) * 6);
+   
+   /* assign the sequences of the ultrastable tetraloops */
+   for (ntlp = 0; ntlp < 30; ntlp++)
+     for (i = 0; i < 6; i++)
+       rnapar->tloop[ntlp][i] = tloop[ntlp][i];
+   
                  /* assign the scores of the ultrastable tetraloops */
   for (ntlp = 0; ntlp < 30; ntlp++)
     {
