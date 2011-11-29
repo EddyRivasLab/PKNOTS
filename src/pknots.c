@@ -36,14 +36,15 @@ static char banner[] =
 
 static ESL_OPTIONS options[] = {
  /* name                type             default  env_var range   toggles req   incompat help                                      docgroup */
-  { "-c",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "add L^5 coaxials (V6)",                  0 },
-  { "-g",               eslARG_NONE,     NULL,    NULL,   NULL,   NULL,   NULL, NULL,    "save as ct-format files",                0 },
-  { "-h",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "show help and usage",                    0 },
-  { "-k",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "allow pseudoknots",                      0 },
-  { "-s",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "shuffle sequences",                      0 },
-  { "-t",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "print traceback",                        0 },
-  { "-v",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "be verbose?",                            0 },
-  { "--infmt",          eslARG_STRING,   NULL,    NULL,   NULL,  NULL,   NULL, NULL,     "specify format",                         0 },
+  { "-a",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "pseudoknot approx, exclude V7-V10 and WB9-WB1", 0 },
+  { "-c",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "add L^5 coaxials (V6)",                         0 },
+  { "-g",               eslARG_NONE,     NULL,    NULL,   NULL,   NULL,   NULL, NULL,    "save as ct-format files",                       0 },
+  { "-h",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "show help and usage",                           0 },
+  { "-k",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "allow pseudoknots",                             0 },
+  { "-s",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "shuffle sequences",                             0 },
+  { "-t",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "print traceback",                               0 },
+  { "-v",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "be verbose?",                                   0 },
+  { "--infmt",          eslARG_STRING,   NULL,    NULL,   NULL,  NULL,   NULL, NULL,     "specify format",                                0 },
   {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
@@ -59,15 +60,15 @@ int
 main(int argc, char **argv)
 { 
   ESL_RANDOMNESS   *r;
-  struct rnapar_2  *zkn_param;          /* rna parameters secon order + knots              */
-  struct tracekn_s *tr; 	        /* traceback of a predicted RNA structure          */
+  struct rnapar_2  *zkn_param = NULL;   /* rna parameters secon order + knots              */
+  struct tracekn_s *tr = NULL; 	        /* traceback of a predicted RNA structure          */
   char             *seqfile;            /* input sequence file                             */
   char             *outfile;            /* where to send the output                        */
   FILE             *ofp;
   ESL_GETOPTS      *go;
   ESL_SQFILE       *sqfp;      	        /* open sequence file                              */
-  ESL_SQ           *sq;
-  ESL_ALPHABET     *abc;
+  ESL_SQ           *sq = NULL;
+  ESL_ALPHABET     *abc = NULL;
   int               format = eslSQFILE_UNKNOWN;
   int             **icfg;               /* integer log form grammar for alignment          */
   long              L;
@@ -102,6 +103,7 @@ main(int argc, char **argv)
   }
   if (esl_opt_ArgNumber(go) != 2) esl_fatal("Incorrect number of command line arguments.\n%s\n", usage);
  
+  approx            = esl_opt_GetBoolean(go, "-a");
   allow_coaxials    = esl_opt_GetBoolean(go, "-c");
   allow_pseudoknots = esl_opt_GetBoolean(go, "-k");
   ctoutput          = esl_opt_GetBoolean(go, "-g");
@@ -133,15 +135,13 @@ main(int argc, char **argv)
     pk_fatal("failed to open %s", seqfile);
   sq = esl_sq_CreateDigital(abc);
 
-  /*********************************************** 
-   * Create the starting model 
-   ***********************************************/
+  /* Create the starting model 
+   */
   Parameters2_Zkn(&zkn_param);
   icfg = ParamIntSCFG(zkn_param); 
 
-  /*********************************************** 
-   * Print banner
-   ***********************************************/
+  /* Print banner 
+   */
   puts(banner);  
   printf("        PKNOTS %s (%s)", RELEASE, RELEASEDATE);
   printf(" using easel\n");
@@ -168,20 +168,17 @@ main(int argc, char **argv)
 	pk_fatal("could not fold the sequence");
       
       /* convert traceback to a ss */
-      if (Tracekn(tr, sq, FALSE) != eslOK)
-	pk_fatal("could not convert to ss");
+      if (Tracekn(tr, sq, FALSE) != eslOK) pk_fatal("could not convert to ss");
       
       /* print output */
-      WriteSeqkn(ofp, abc, sq, ctoutput, zkn_param, format, shuffleseq, 
-		 allow_pseudoknots, approx, sc);
+      WriteSeqkn(ofp, abc, sq, ctoutput, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc);
       
       FreeTracekn(tr);
       esl_sq_Reuse(sq);
     }
   
-  /*********************************************** 
-   * Cleanup and exit
-   ***********************************************/
+  /* Cleanup and exit
+   */
   free(zkn_param);
   FreeIntSCFG(icfg);
   esl_randomness_Destroy(r);
