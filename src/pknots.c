@@ -70,7 +70,7 @@ main(int argc, char **argv)
   ESL_ALPHABET     *abc;
   int               format = eslSQFILE_UNKNOWN;
   int             **icfg;               /* integer log form grammar for alignment          */
-  int               L;
+  long              L;
   CYKVAL            sc;                 /* score of predicted structure                    */
 
   int               approx;             /* TRUE  == external pseudoknot approximation      *
@@ -154,10 +154,10 @@ main(int argc, char **argv)
    */
   while ((status = esl_sqio_Read(sqfp, sq)) == eslOK) 
     {
-     L = sq->n;
+      L = (long)sq->n;
       
       if (verbose) {
-	printf("[Original sequence:]\n");
+	printf("[Original sequence:] len %ld\n", L);
 	esl_sqio_Write(stdout, sq, eslSQFILE_FASTA, FALSE);
       }
       
