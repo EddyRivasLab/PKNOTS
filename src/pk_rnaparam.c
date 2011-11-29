@@ -197,40 +197,41 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
    * At the end, including the closing base pair, only 30 cases get
    * a negative energy
    */
-  char tloop[30][6] = {"GGGGAC",
-		       "GGUGAC",
-		       "CGAAAG",
-		       "GGAGAC",
-		       "CGCAAG",
-		       "GGAAAC",
-		       "CGGAAG",
-		       "CUUCGG",
-		       "CGUGAG",
-		       "CGAAGG",
-		       "CUACGG",
-		       "GGCAAC",
-		       "CGCGAG",
-		       "UGAGAG",
-		       "CGAGAG",
-		       "AGAAAU",
-		       "CGUAAG",
-		       "CUAACG",
-		       "UGAAAG",
-		       "GGAAGC",
-		       "GGGAAC",
-		       "UGAAAA",
-		       "AGCAAU",
-		       "AGUAAU",
-		       "CGGGAG",
-		       "AGUGAU",
-		       "GGCGAC",
-		       "GGGAGC",
-		       "GUGAAC",
-		       "UGGAAA"
+  char tloop[30][7] = {"GGGGAC\0",
+		       "GGUGAC\0",
+		       "CGAAAG\0",
+		       "GGAGAC\0",
+		       "CGCAAG\0",
+		       "GGAAAC\0",
+		       "CGGAAG\0",
+		       "CUUCGG\0",
+		       "CGUGAG\0",
+		       "CGAAGG\0",
+		       "CUACGG\0",
+		       "GGCAAC\0",
+		       "CGCGAG\0",
+		       "UGAGAG\0",
+		       "CGAGAG\0",
+		       "AGAAAU\0",
+		       "CGUAAG\0",
+		       "CUAACG\0",
+		       "UGAAAG\0",
+		       "GGAAGC\0",
+		       "GGGAAC\0",
+		       "UGAAAA\0",
+		       "AGCAAU\0",
+		       "AGUAAU\0",
+		       "CGGGAG\0",
+		       "AGUGAU\0",
+		       "GGCGAC\0",
+		       "GGGAGC\0",
+		       "GUGAAC\0",
+		       "UGGAAA\0"
   };
 
+  printf("STR %c\n%u\n", tloop[29][5], (unsigned)strlen(tloop[29]));
+
   /* loop energies */
-  
   rnapar->inter[0]  = BIGFLOAT;
   rnapar->inter[1]  = BIGFLOAT;
   rnapar->inter[2]  = 4.1;
@@ -396,8 +397,8 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
      ESL_ALLOC(iseq[ntlp], sizeof(int) * 6);
    
    /* assign the sequences of the ultrastable tetraloops */
-   for (ntlp = 0; ntlp < 30; ntlp++)
-     for (i = 0; i < 6; i++)
+   for (ntlp = 0; ntlp < 30; ntlp++) 
+     for (i = 0; i < 7; i++)
        rnapar->tloop[ntlp][i] = tloop[ntlp][i];
    
                  /* assign the scores of the ultrastable tetraloops */
@@ -424,6 +425,9 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
   return;
 
  ERROR:
+  for (ntlp = 0; ntlp < 30; ntlp++)
+    if (iseq[ntlp] != NULL) free(iseq[ntlp]);
+  if (iseq != NULL) free(iseq);
   printf("bad allocation\n");
   exit(1);
 }
@@ -442,10 +446,10 @@ int **
 ParamIntSCFG(struct rnapar_2 *rnapar)
 {
   int **icfg;
-  int i, j, ip, jp;
-  int size;
-  int tlp;
-  int asy; 
+  int   i, j, ip, jp;
+  int   size;
+  int   tlp;
+  int   asy; 
 
   rnapar->P1   = -wsf*IntizeScale(EPARAM1);
   rnapar->P2   = -wsf*IntizeScale(EPARAM2);

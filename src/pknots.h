@@ -252,7 +252,7 @@ struct rnapar_2 {
   float   inter[MAXRNALOOP+1];   /* total-length contribution to internal-loop score      */
   float             poppen[4];   /* asymmetric-length contribution to internal-loop score */
 
-  char    tloop[30][6];          /* ultrastable tetraloops */
+  char    tloop[30][7];          /* ultrastable tetraloops */
   float tetraloop[4096];         /* tetraloops' scores     */
 };
 
