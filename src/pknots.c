@@ -124,20 +124,20 @@ main(int argc, char **argv)
 
   r = esl_randomness_CreateTimeseeded();
 
-  /*********************************************** 
-   * Create the starting model 
-   ***********************************************/
-  abc = esl_alphabet_Create(eslRNA);
-  Parameters2_Zkn(&zkn_param);
-  icfg = ParamIntSCFG(zkn_param); 
-
   /* Open the output file and the input seqfile.
    */
+  abc = esl_alphabet_Create(eslRNA);
   if ((ofp = fopen(outfile, "w")) == NULL) 
     pk_fatal("failed to open %s for output", outfile);
   if (esl_sqfile_OpenDigital(abc, seqfile, infmt, NULL, &sqfp) != eslOK)
     pk_fatal("failed to open %s", seqfile);
   sq = esl_sq_CreateDigital(abc);
+
+  /*********************************************** 
+   * Create the starting model 
+   ***********************************************/
+  Parameters2_Zkn(&zkn_param);
+  icfg = ParamIntSCFG(zkn_param); 
 
   /*********************************************** 
    * Print banner

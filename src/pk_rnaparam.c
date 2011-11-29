@@ -390,6 +390,7 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
    */
    for (tlp = 0; tlp < 4096; tlp++)
     rnapar->tetraloop[tlp]  = 0.0;
+
    ESL_ALLOC(iseq, sizeof(int *) * 30);
    for (ntlp = 0; ntlp < 30; ntlp++)
      ESL_ALLOC(iseq[ntlp], sizeof(int) * 6);
