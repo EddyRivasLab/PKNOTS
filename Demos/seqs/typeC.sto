@@ -5,8 +5,8 @@ typeC_2.3a         CAAGUUAAACAUAAUCCGUGAUCUUUCACACGGGAGAUCUAUGAAAGA
 //
 # STOCKHOLM 1.0
 
-typeC_2.5a         UCAAGAUAGUAUCCGUUCUUGAUCAUCGGGACAAAUGAUCAAAAAA<<<<....aaaaaa
-#=GR typeC_2.5a SS ...........<<<<.....AAAAAA>>>>....aaaaaaAAAAAA>>>>....aaaaaa
+typeC_2.5a         UCAAGAUAGUAUCCGUUCUUGAUCAUCGGGACAAAUGAUCU
+#=GR typeC_2.5a SS ...........<<<<.....AAAAAA>>>>....aaaaaaa
 //
 # STOCKHOLM 1.0
 
@@ -15,6 +15,6 @@ typeC_2.6b         UCAAGUGAAACUUAACCGUUAUCAUAGAUCGGGACAAAUCUAUGAA
 //
 # STOCKHOLM 1.0
 
-typeC_2.2b         AAUCAAGUACCUAGGUGAUAAAAGGGAGAACACGUGUGAC..<<<.....aaa.......
-#=GR typeC_2.2b SS .........<<<..AAA.....>>>.....aaa.........>>>.....aaa.......
+typeC_2.2b         AAUCAAGUACCUAGGUGAUAAAAGGGAGAACACGUGUGACU
+#=GR typeC_2.2b SS .........<<<..AAA.....>>>.....aaa........
 //

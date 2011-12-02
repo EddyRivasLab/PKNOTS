@@ -81,8 +81,8 @@ sub sqd2sto {
 	    if ($includess == 1) { $badss = 1; if ($nline==1) {my $x = 0; while ($x++ < length($line)) { $ss .= "."; } if ($verbose) { print "2SS:$ss\n";   }  } }
 	}
 	else {
-	    if (/^\s*(\D+\s*.+)$/)       { $line = $1; }
-	    if (/^\s*\d+\s+(\D+\s*.+)$/) { $line = $1; }
+	    if (/^\s*(\D+\s*.*)$/)       { $line = $1; }
+	    if (/^\s*\d+\s+(\D+\s*.*)$/) { $line = $1; }
 	    
 	    $line =~ s/ //g;
 	    $line =~ s/\t//g;
@@ -93,11 +93,11 @@ sub sqd2sto {
 	    if    ($includess == 0) { $sq .= $line; if ($verbose) { print "1SQ:$sq\n"; } } 
 	    elsif ($badss     == 1) { 
 		$sq .= $line;                                           if ($verbose) { print "2SQ:$sq\n"; }
-		my $x = 0; while ($x++ < length($line)) { $ss .= "."; } if ($verbose) { print "2SS:$ss\n";   } 
+		my $x = 0; while ($x++ < length($line)) { $ss .= "."; } if ($verbose) { print "2SS:$ss\n"; } 
 	    }
 	    elsif ($badss     == 0) {
-		if ($nline%2 == 0) { $ss .= $line; if ($verbose) { print "3SS:$ss\n"; } }
-		else               { $sq .= $line; if ($verbose) { print "3SQ:$sq\n"; } } 
+		if ($nline%2 == 0) { $ss .= $line; if ($verbose) { print "3SS:$ss|line$nline\n"; } }
+		else               { $sq .= $line; if ($verbose) { print "3SQ:$sq|line$nline\n"; } } 
 	    }
 	}
     }
@@ -113,6 +113,7 @@ sub print_sto {
     if ($verbose) { print "SQ:$sq|\n"; print "SS:$ss|\n"; }
 
     if (length($ss) != length($sq)) { printf "bad lengths %d versus %d\n", length($ss), length($sq); die; }
+    if ($sq =~ /\./ || $sq =~ /</ || $sq =~ />/) { printf "bad seq\n", $sq; die; }
 
     open (STO, ">>$stofile") || die; 
 
