@@ -122,7 +122,7 @@ main(int argc, char **argv)
       if (infmt == eslSQFILE_UNKNOWN) 
 	pk_fatal("Unrecognized file format %s\n", informat);
     }
-  esl_getopts_Destroy(go);
+
 
   r = esl_randomness_CreateTimeseeded();
 
@@ -176,9 +176,12 @@ main(int argc, char **argv)
       FreeTracekn(tr);
       esl_sq_Reuse(sq);
     }
-  
+  if      (status == eslEFORMAT) esl_fatal("Parse failed (sequence file %s)\n%s\n", sqfp->filename, sqfp->get_error(sqfp));     
+  else if (status != eslEOF)     esl_fatal("Unexpected error %d reading sequence file %s", status, sqfp->filename);
+ 
   /* Cleanup and exit
    */
+  esl_getopts_Destroy(go);
   free(zkn_param);
   FreeIntSCFG(icfg);
   esl_randomness_Destroy(r);

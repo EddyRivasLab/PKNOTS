@@ -229,8 +229,6 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
 			"UGGAAA"
   };
 
-  printf("STR %c\n%u\n", tloop[29][5], (unsigned)strlen(tloop[29]));
-
   /* loop energies */
   rnapar->inter[0]  = BIGFLOAT;
   rnapar->inter[1]  = BIGFLOAT;
