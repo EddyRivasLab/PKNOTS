@@ -197,36 +197,36 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
    * At the end, including the closing base pair, only 30 cases get
    * a negative energy
    */
-  char tloop[30][7] = {"GGGGAC\0",
-		       "GGUGAC\0",
-		       "CGAAAG\0",
-		       "GGAGAC\0",
-		       "CGCAAG\0",
-		       "GGAAAC\0",
-		       "CGGAAG\0",
-		       "CUUCGG\0",
-		       "CGUGAG\0",
-		       "CGAAGG\0",
-		       "CUACGG\0",
-		       "GGCAAC\0",
-		       "CGCGAG\0",
-		       "UGAGAG\0",
-		       "CGAGAG\0",
-		       "AGAAAU\0",
-		       "CGUAAG\0",
-		       "CUAACG\0",
-		       "UGAAAG\0",
-		       "GGAAGC\0",
-		       "GGGAAC\0",
-		       "UGAAAA\0",
-		       "AGCAAU\0",
-		       "AGUAAU\0",
-		       "CGGGAG\0",
-		       "AGUGAU\0",
-		       "GGCGAC\0",
-		       "GGGAGC\0",
-		       "GUGAAC\0",
-		       "UGGAAA\0"
+  char tloop[30][32] = {"GGGGAC",
+			"GGUGAC",
+			"CGAAAG",
+			"GGAGAC",
+			"CGCAAG",
+			"GGAAAC",
+			"CGGAAG",
+			"CUUCGG",
+			"CGUGAG",
+			"CGAAGG",
+			"CUACGG",
+			"GGCAAC",
+			"CGCGAG",
+			"UGAGAG",
+			"CGAGAG",
+			"AGAAAU",
+			"CGUAAG",
+			"CUAACG",
+			"UGAAAG",
+			"GGAAGC",
+			"GGGAAC",
+			"UGAAAA",
+			"AGCAAU",
+			"AGUAAU",
+			"CGGGAG",
+			"AGUGAU",
+			"GGCGAC",
+			"GGGAGC",
+			"GUGAAC",
+			"UGGAAA"
   };
 
   printf("STR %c\n%u\n", tloop[29][5], (unsigned)strlen(tloop[29]));
@@ -398,9 +398,8 @@ Parameters2_Zkn(struct rnapar_2 **ret_rnapar)
    
    /* assign the sequences of the ultrastable tetraloops */
    for (ntlp = 0; ntlp < 30; ntlp++) 
-     for (i = 0; i < 7; i++)
-       rnapar->tloop[ntlp][i] = tloop[ntlp][i];
-   
+     strcpy(rnapar->tloop[ntlp], tloop[ntlp]);
+     
                  /* assign the scores of the ultrastable tetraloops */
   for (ntlp = 0; ntlp < 30; ntlp++)
     {
