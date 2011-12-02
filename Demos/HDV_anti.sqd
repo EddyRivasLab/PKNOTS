@@ -1,8 +1,0 @@
-NAM  HDV_antigenomic
-SRC  HDV_antigenomic - 0..90::91
-SEQ  +SS
-GGGUCGGCAU GGCAUCUCCA CCUCCUCGCG GUCCGACCUG GGCAUCCGAA
-.>>>>>>... ....AAAAA> >>.......< <<<<<<<<.. ..>>>>>>>.
-GGAGGACGCA CGUCCACUCG GAUGGCUAAG GGAGAGCCAC U
-...>>>>... .<<<<..<<< <<<<...... aaaaa..... .
-++
