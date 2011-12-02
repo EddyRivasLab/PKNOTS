@@ -1,0 +1,41 @@
+NAM wyatt
+DES PK5 
+SEQ  +SS
+GCGAUUUCUGACCGCUUUUUUGUCAG
+>>>....AAAAA<<<......aaaaa
+++
+
+NAM wyatt
+DES PK5a 
+SEQ  +SS
+GCGAUUUCUGACCGCC
+>>>.........<<<.
+++
+
+NAM wyatt
+DES PK5b
+SEQ  +SS
+GCUGACCGCUUUUUUGUCAG
+.>>>>>.........<<<<<
+++
+
+NAM wyatt
+DES PK17 
+SEQ  +SS
+GCGUUUCUGACCGCUUUUGUCAG
+>>>...AAAAA<<<....aaaaa
+++
+
+NAM wyatt
+DES PK17a
+SEQ  +SS
+GCGUUUCUGACCGCC
+>>>........<<<.
+++
+
+NAM wyatt
+DES PK17b 
+SEQ  +SS
+GCUGACCGCUUUUGUCAG
+.>>>>>.......<<<<<
+++

@@ -1,0 +1,30 @@
+# STOCKHOLM 1.0
+
+wyatt_PK5         GCGAUUUCUGACCGCUUUUUUGUCAG
+#=GR wyatt_PK5 SS >>>....AAAAA<<<......aaaaa
+//
+# STOCKHOLM 1.0
+
+wyatt_PK5a         GCGAUUUCUGACCGCC
+#=GR wyatt_PK5a SS <<<.........>>>.
+//
+# STOCKHOLM 1.0
+
+wyatt_PK5b         GCUGACCGCUUUUUUGUCAG
+#=GR wyatt_PK5b SS .>>>>>.........<<<<<
+//
+# STOCKHOLM 1.0
+
+wyatt_PK17         GCGUUUCUGACCGCUUUUGUCAG
+#=GR wyatt_PK17 SS <<<...AAAAA>>>....aaaaa
+//
+# STOCKHOLM 1.0
+
+wyatt_PK17a         GCGUUUCUGACCGCC
+#=GR wyatt_PK17a SS >>>........<<<.
+//
+# STOCKHOLM 1.0
+
+wyatt_PK17b         GCUGACCGCUUUUGUCAG
+#=GR wyatt_PK17b SS .<<<<<.......>>>>>
+//
