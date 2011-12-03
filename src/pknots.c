@@ -51,7 +51,7 @@ static ESL_OPTIONS options[] = {
 static char usage[] = "\
 Usage: ./pknots [-options] <infile> <outfile>\n\
  where <infile> is a fasta or Stockholm file with sequences to fold\n\
- results in Stockholm format are saved to <outfile>.\n\
+ results are saved to <outfile>.\n\
  \n\
 "
 ;
@@ -143,8 +143,8 @@ main(int argc, char **argv)
   /* Print banner 
    */
   puts(banner);  
-  printf("        PKNOTS %s (%s)", RELEASE, RELEASEDATE);
-  printf(" using easel\n");
+  fprintf(ofp, "PKNOTS %s (%s)", RELEASE, RELEASEDATE);
+  fprintf(ofp, " using easel\n");
   printf("---------------------------------------------------\n");
   printf("Folding sequences from:  %s \n", seqfile);
   printf("---------------------------------------------------\n");
@@ -171,10 +171,12 @@ main(int argc, char **argv)
       if (Tracekn(tr, sq, FALSE) != eslOK) pk_fatal("could not convert to ss");
       
       /* print output */
-      WriteSeqkn(ofp, abc, sq, ctoutput, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc);
+      WriteSeqkn(ofp, abc, sq, tr, ctoutput, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc);
       
-      FreeTracekn(tr);
-      esl_sq_Reuse(sq);
+       printf("folding of sequence %s done.\n", sq->name);
+       
+       FreeTracekn(tr);
+       esl_sq_Reuse(sq);
     }
   if      (status == eslEFORMAT) esl_fatal("Parse failed (sequence file %s)\n%s\n", sqfp->filename, sqfp->get_error(sqfp));     
   else if (status != eslEOF)     esl_fatal("Unexpected error %d reading sequence file %s", status, sqfp->filename);

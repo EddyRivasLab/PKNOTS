@@ -32,7 +32,7 @@
 #include "dbmalloc.h"
 #endif
 
-static void ct_output(FILE *ofp, char *seq, int *ct, int j, int d);
+static void ct_output(FILE *ofp, char *seq, char *seqname, int *ct, int j, int d);
 static void param_output(FILE *outf, struct rnapar_2 *zkn_param, 
 			 int format, int shuffleseq, int allow_pseudoknots, 
 			 int approx, CYKVAL sc, float cykpairs);
@@ -119,6 +119,81 @@ Tracekn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick)
   return status;
 }
 
+/* Function: Traceintkn()
+ * 
+ * Purpose:  Convert a secondary structure string to an array of integers
+ *           representing what position each position is base-paired 
+ *           to (0..len-1), or -1 if none. 
+ *           
+ *           Constructed for the one-hole algorithm.
+ *
+ *           "." are used for single-stranded stuff.
+ *           Note that structure is defined by pairwise emissions,
+ *           not by Watson-Crick-isms and stacking rules.
+ *           
+ * Args:     tr          - traceback structure
+ *           seq         - sequence, 0..rlen-1
+ *           rlen        - length of seq and returned ss string
+ *           watsoncrick - TRUE to annotate canonical pairs only
+ *           ret_ss      - RETURN: alloc'ed secondary structure string
+ *
+ * Return:   ret_ss contains a string 0..rlen-1 containing the
+ *           secondary structure. Must be free'd by caller.
+ */
+int
+Traceintkn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick, 
+	   int **ret_ct)  
+{ 
+  struct traceknstack_s *dolist = NULL;
+  struct tracekn_s      *curr = NULL;
+  int                   *ct = NULL;
+  int                    i;
+  int                    status;
+
+  ESL_ALLOC(ct, sizeof(int) * (sq->n+1));
+
+  for (i = 0; i <= sq->n; i++)
+    ct[i] = 0;
+
+  dolist = InitTraceknstack();
+  PushTraceknstack(dolist, tr->nxtl);
+
+  while ((curr = PopTraceknstack(dolist)) != NULL)
+    {
+      if (curr->type1 == dpcP || curr->type1 == dpcPS || curr->type1 == dpcPI || curr->type1 == dpcPL)
+	{
+	  if (! watsoncrick  ||
+	      IsRNAComplement(sq->dsq[curr->emiti+1], sq->dsq[curr->emitj+1], TRUE))
+	    {
+	      ct[curr->emiti+1] = curr->emitj+1;
+	      ct[curr->emitj+1] = curr->emiti+1;
+	    }
+	}
+
+
+      if (curr->type2 == dpcP || curr->type2 == dpcPS || curr->type2 == dpcPI || curr->type2 == dpcPL )
+	{
+	  if (! watsoncrick  ||
+	      IsRNAComplement(sq->dsq[curr->emitk+1], sq->dsq[curr->emitl+1], TRUE))
+	    {
+	      ct[curr->emitk+1] = curr->emitl+1;
+	      ct[curr->emitl+1] = curr->emitk+1;
+	    }
+	}
+
+      if (curr->nxtr) PushTraceknstack(dolist, curr->nxtr);
+      if (curr->nxtl) PushTraceknstack(dolist, curr->nxtl);
+    }
+  FreeTraceknstack(dolist);
+  *ret_ct = ct;
+  return eslOK;
+  
+ ERROR:
+  if (dolist != NULL) FreeTraceknstack(dolist);
+  if (ct != NULL) free(ct);
+  return status;
+}
+
 /* Function: WriteSeqkn()
  * 
  * Purpose:  writes in outf file the Tracekn
@@ -131,7 +206,7 @@ Tracekn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick)
  *           
  */
 int
-WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int ctoutput, 
+WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, struct tracekn_s *tr, int ctoutput, 
 	   struct rnapar_2 *zkn_param, int format, int shuffleseq, 
 	   int allow_pseudoknots, int approx, CYKVAL sc)
 {
@@ -149,117 +224,118 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, int ctoutput,
 
   /* the CT array (starts at 1) */
   L = strlen(sq->ss+1);
-  ESL_ALLOC(ct, sizeof(int) * (L+1));
-  if (esl_wuss2ct(sq->ss+1, sq->n, ct) != eslOK)
-    pk_fatal("could not generate ctfile");
-
+  if ((status = Traceintkn(tr, sq, FALSE, &ct)) != eslOK) goto ERROR;
+  
   /* textize sequence for output */
-  if (esl_sq_Textize(sq)!= eslOK)  pk_fatal("coudnot textize %s", sq->name); /* sq is now text mode */
+  if (esl_sq_Textize(sq) != eslOK)  pk_fatal("couldnot textize %s", sq->name); /* sq is now text mode */
 
-  strcpy( endstr,"");
-  l1 = 0;
-
-  printf("NAM  %s\n", sq->name);
-
-  printf("SEQ\n");
-
-  numline = 1;                /* number seq lines w/ coords  */
-  strcpy(endstr, "\n");
-
-  for (i=0, l=0, ibase = 1, lines = 0; i < sq->n; ) {
-
-    if (l1 < 0) 
-      l1 = 0;
-    else if (l1 == 0) {
-      if (numline) 
-	printf("%8d ",ibase);
-      for (j=0; j<tab; j++) 
-	fputc(' ',stdout);
-    }
-      
-    if (spacer != 0 && l%spacer == 1) {
-      s[l] = ' '; 
-      lss[l] = 1234; 
-      l++;
-    }
+   /* write ss to output */ 
+  if (ctoutput) ct_output(outf, sq->seq, sq->name, ct, sq->n-1, sq->n-1);
+  else {
     
-    if (spacer != 0 && l%spacer == 2) {
-      s[l] = ' '; 
-      lss[l] = 1234; 
-      l++;
-    }
-      
-    if (spacer != 0 && l%spacer == 3) {
-      s[l] = ' '; 
-      lss[l] = 1234;
-      l++;
-    }
-
-    pos[l] = i+1;
-    s[l]   = *(sq->seq+i);
-      
-    if (ct[i+1] != 0) {
-      lss[l]  = ct[i+1];
-      cykpairs += 1;
-    }
-    else 
-      lss[l] = 56789;
+    strcpy( endstr,"");
+    l1 = 0;
     
-    l++; i++;
-    l1++;                 /* don't count spaces for width*/
-    if (l1 == width || i == sq->n) {
-      s[l]  = '\0';
-      lss[l] = 888888;
+    fprintf(outf, "NAM  %s\n", sq->name);
+    
+    fprintf(outf, "SEQ\n");
+    
+    numline = 1;                /* number seq lines w/ coords  */
+    strcpy(endstr, "\n");
+    
+    for (i=0, l=0, ibase = 1, lines = 0; i < sq->n; ) {
       
-      printf("%s\n", s);
+      if (l1 < 0) 
+	l1 = 0;
+      else if (l1 == 0) {
+	if (numline) 
+	  fprintf(outf, "%8d ",ibase);
+	for (j=0; j<tab; j++) 
+	  fputc(' ',outf);
+      }
       
-      if (numline) 
-	printf("         ");
+      if (spacer != 0 && l%spacer == 1) {
+	s[l] = ' '; 
+	lss[l] = 1234; 
+	l++;
+      }
       
-      for (j=0; j<tab; j++) 
-	fputc(' ',stdout);
+      if (spacer != 0 && l%spacer == 2) {
+	s[l] = ' '; 
+	lss[l] = 1234; 
+	l++;
+      }
       
-      for (m=0; m<l; m++)
+      if (spacer != 0 && l%spacer == 3) {
+	s[l] = ' '; 
+	lss[l] = 1234;
+	l++;
+      }
+      
+      pos[l] = i+1;
+      s[l]   = *(sq->seq+i);
+      
+      if (ct[i+1] != 0) {
+	lss[l]  = ct[i+1];
+	cykpairs += 1;
+      }
+      else 
+	lss[l] = 56789;
+      
+      l++; i++;
+      l1++;                 /* don't count spaces for width*/
+      if (l1 == width || i == sq->n) {
+	s[l]  = '\0';
+	lss[l] = 888888;
+	
+	fprintf(outf, "%s\n", s);
+	
+	if (numline) 
+	  fprintf(outf, "         ");
+	
+	for (j=0; j<tab; j++) 
+	  fputc(' ',outf);
+	
+	for (m=0; m<l; m++)
 	  if (s[m] != ' '  &&  pos[m] <= 9) 
-	    printf("%d   ", *(pos+m));
+	    fprintf(outf, "%d   ", *(pos+m));
 	  else if (s[m] != ' '  && pos[m] > 9 && pos[m] <= 99) 
-	    printf("%d  ", *(pos+m));
+	    fprintf(outf, "%d  ", *(pos+m));
 	  else if (s[m] != ' ') 
-	    printf("%d ", *(pos+m));
-      
-      printf("\n");
-      
-      if (numline) 
-	printf("         ");
-      
-      for (j = 0; j < tab; j++) 
-	fputc(' ',stdout);
-      
-      for (m = 0; m < l; m++)
-	if (s[m] != ' '  && lss[m] <= 9 && lss[m] != 56789)
-	  printf("%d   ", *(lss+m));
-	else if (s[m] != ' '  && lss[m] > 9 && lss[m] <= 99 && lss[m] != 56789)
-	  printf("%d  ", *(lss+m));
-	else if (s[m] != ' ' && lss[m] != 56789)
-	  printf("%d ", *(lss+m));
-	else if (s[m] != ' ') 
-	  printf(".   ");
-      
-      printf("%s\n",endstr);
- 
-      l = 0; l1 = 0;
-      lines++;
-      ibase = i+1;
+	    fprintf(outf, "%d ", *(pos+m));
+	
+	fprintf(outf, "\n");
+	
+	if (numline) 
+	  fprintf(outf, "         ");
+	
+	for (j = 0; j < tab; j++) 
+	  fputc(' ',outf);
+	
+	for (m = 0; m < l; m++)
+	  if (s[m] != ' '  && lss[m] <= 9 && lss[m] != 56789)
+	    fprintf(outf, "%d   ", *(lss+m));
+	  else if (s[m] != ' '  && lss[m] > 9 && lss[m] <= 99 && lss[m] != 56789)
+	    fprintf(outf, "%d  ", *(lss+m));
+	  else if (s[m] != ' ' && lss[m] != 56789)
+	    fprintf(outf, "%d ", *(lss+m));
+	  else if (s[m] != ' ') 
+	    fprintf(outf, ".   ");
+	
+	fprintf(outf, "%s\n",endstr);
+	
+	l = 0; l1 = 0;
+	lines++;
+	ibase = i+1;
+      }
     }
+
+    param_output(outf, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc, cykpairs);
   }
 
-  cykpairs = cykpairs/2;
 
-  param_output(stdout, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc, cykpairs);
   
-   /* write ss to a stockholm file or ctfile */ 
-  if (ctoutput) ct_output(outf, sq->seq, ct, sq->n-1, sq->n-1);
-  else          esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM, FALSE);
+  cykpairs = cykpairs/2;
 
   /* digitize back */
   if (esl_sq_Digitize(abc, sq)!= eslOK)  pk_fatal("coudnot digitize %s", sq->name); /* sq is digital again */
@@ -327,18 +403,18 @@ IsRNAComplementDigital(int sym1, int sym2, int allow_gu)
  * Return:   (void)
  */          
 static void
-ct_output(FILE *ofp, char *seq, int *ct, int j, int d)
+ct_output(FILE *ofp, char *seq, char *seqname, int *ct, int j, int d)
 {  
   int i;          /* initial position of fragment. 0,..,d-1 */
   int iabs;       /* absolute value of initial position     */
 
-  fprintf(ofp,"\n ct_output \n");
+  fprintf(ofp,"\n ct_output seq: %s\n", seqname);
   fprintf(ofp,"----------------------------------------------------------------------\n");
 
   for (i = 0; i <= d; i++) {
     iabs = i + j - d;
     fprintf(ofp, "%5d %c   %5d %4d %4d %4d\n",
-            i+1, seq[iabs], i, i+2, ct[iabs], iabs+1);
+            i+1, seq[iabs+1], i, i+2, ct[iabs+1], iabs+1);
   }
   
   fprintf(ofp, "\n");
