@@ -51,6 +51,7 @@ sub sqd2sto {
     my $ss;
     my $nline;
     my $line;
+    my $eof = 0;
     
 
     open (FILE, "$file") || die; 
@@ -60,22 +61,20 @@ sub sqd2sto {
 	    $name =~ s/ /_/g;
  
 	    $nsq ++; 
+	    $includess = 0; 
+	    $badss = 0;
 	    $sq = ""; 
 	    $ss = ""; 
-	    $nline = 0;  
+	    $nline = 0; 
+	    $eof = 0;
 	    if ($verbose) { print "NAM:$name\n"; }
 	}
 	elsif (/^SRC\s+(.+)$/)     { $src  = $1; }
 	elsif (/^DES\s+(.+)$/)     { $name .= "_$1"; }
 	elsif (/^SEQ\s+\+SS\s*$/)  { $includess = 1; }
 	elsif (/^\+\+$/)        { 
-	    
+	    $eof = 1;
 	    print_sto($outfile, $name, $src, $sq, $ss, $dofasta);
-	    $includess = 0; 
-	    $badss = 0;
-	    $sq = ""; 
-	    $ss = ""; 
-	    $nline = 0; 
 	}
 	elsif (/^$/)       {
 	    if ($includess == 1) { $badss = 1; if ($nline==1) {my $x = 0; while ($x++ < length($line)) { $ss .= "."; } if ($verbose) { print "2SS:$ss\n";   }  } }
@@ -103,6 +102,7 @@ sub sqd2sto {
     }
     close (FILE);
     
+    if ($eof == 0) { print "file did not end properly\n"; die; }
     if ($verbose) { print "NSQ = $nsq\n"; }
     
 }
