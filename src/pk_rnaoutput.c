@@ -206,7 +206,7 @@ Traceintkn(struct tracekn_s *tr, ESL_SQ *sq, int watsoncrick,
  *           
  */
 int
-WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, struct tracekn_s *tr, int ctoutput, 
+WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, struct tracekn_s *tr, int ctoutput, int stoutput, 
 	   struct rnapar_2 *zkn_param, int format, int shuffleseq, 
 	   int allow_pseudoknots, int approx, CYKVAL sc)
 {
@@ -231,6 +231,14 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, struct tracekn_s *tr, int 
 
    /* write ss to output */ 
   if (ctoutput) ct_output(outf, sq->seq, sq->name, ct, sq->n-1, sq->n-1);
+  else if (stoutput) {
+    if (sq->ss == NULL)  {
+      ESL_ALLOC(sq->ss, sizeof(char) * (sq->n+2));
+      sq->ss[0] = '\0'; 
+    }
+    esl_ct2wuss(ct, sq->n, sq->ss+1);
+    esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM, FALSE);
+  }
   else {
     
     strcpy( endstr,"");
@@ -414,7 +422,7 @@ ct_output(FILE *ofp, char *seq, char *seqname, int *ct, int j, int d)
   for (i = 0; i <= d; i++) {
     iabs = i + j - d;
     fprintf(ofp, "%5d %c   %5d %4d %4d %4d\n",
-            i+1, seq[iabs+1], i, i+2, ct[iabs+1], iabs+1);
+            i+1, seq[iabs], i, i+2, ct[iabs+1], iabs+1);
   }
   
   fprintf(ofp, "\n");

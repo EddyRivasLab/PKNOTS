@@ -39,6 +39,7 @@ static ESL_OPTIONS options[] = {
   { "-a",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "pseudoknot approx, exclude V7-V10 and WB9-WB1", 0 },
   { "-c",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "add L^5 coaxials (V6)",                         0 },
   { "-g",               eslARG_NONE,     NULL,    NULL,   NULL,   NULL,   NULL, NULL,    "save as ct-format files",                       0 },
+  { "--stockholm",      eslARG_NONE,     NULL,    NULL,   NULL,   NULL,   NULL, NULL,    "s",                       0 },
   { "-h",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "show help and usage",                           0 },
   { "-k",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "allow pseudoknots",                             0 },
   { "-s",               eslARG_NONE,     FALSE,   NULL,   NULL,   NULL,   NULL, NULL,    "shuffle sequences",                             0 },
@@ -82,6 +83,7 @@ main(int argc, char **argv)
   int               allow_pseudoknots;	/* TRUE  == include pseudoknots                    *
 				         * FALSE == no pseudoknots                         */
   int               ctoutput;           /* TRUE print ctoutput                             */
+  int               stoutput;           /* TRUE for output in stockholm format             */
   int               shuffleseq;         /* TRUE to shuffle the sequences                   */
   int               traceback;          /* TRUE print traceback                            */
   char             *informat;
@@ -107,6 +109,7 @@ main(int argc, char **argv)
   allow_coaxials    = esl_opt_GetBoolean(go, "-c");
   allow_pseudoknots = esl_opt_GetBoolean(go, "-k");
   ctoutput          = esl_opt_GetBoolean(go, "-g");
+  stoutput          = esl_opt_GetBoolean(go, "--stockholm");
   informat          = esl_opt_GetString(go, "--infmt");
   shuffleseq        = esl_opt_GetBoolean(go, "-s");
   traceback         = esl_opt_GetBoolean(go, "-t");
@@ -142,9 +145,11 @@ main(int argc, char **argv)
 
   /* Print banner 
    */
-  puts(banner);  
-  fprintf(ofp, "PKNOTS %s (%s)", RELEASE, RELEASEDATE);
-  fprintf(ofp, " using easel\n");
+  puts(banner); 
+  if (!stoutput) {
+    fprintf(ofp, "PKNOTS %s (%s)", RELEASE, RELEASEDATE);
+    fprintf(ofp, " using easel\n");
+  }
   printf("---------------------------------------------------\n");
   printf("Folding sequences from:  %s \n", seqfile);
   printf("---------------------------------------------------\n");
@@ -171,7 +176,7 @@ main(int argc, char **argv)
       if (Tracekn(tr, sq, FALSE) != eslOK) pk_fatal("could not convert to ss");
       
       /* print output */
-      WriteSeqkn(ofp, abc, sq, tr, ctoutput, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc);
+      WriteSeqkn(ofp, abc, sq, tr, ctoutput, stoutput, zkn_param, format, shuffleseq, allow_pseudoknots, approx, sc);
       
        printf("folding of sequence %s done.\n", sq->name);
        
