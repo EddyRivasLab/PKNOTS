@@ -236,7 +236,8 @@ WriteSeqkn(FILE *outf, ESL_ALPHABET *abc, ESL_SQ *sq, struct tracekn_s *tr, int 
       ESL_ALLOC(sq->ss, sizeof(char) * (sq->n+2));
       sq->ss[0] = '\0'; 
     }
-    esl_ct2wuss(ct, sq->n, sq->ss+1);
+    esl_ct2wuss(ct, sq->n, sq->ss);
+
     esl_sqio_Write(outf, sq, eslMSAFILE_STOCKHOLM, FALSE);
   }
   else {

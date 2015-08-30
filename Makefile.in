@@ -18,8 +18,8 @@ MYINCDIR = -Ieasel
 
 LIBS     = -lm
 MYLIBS   = -leasel
-LFLAGS   = -Leasel
-IFLAGS   = -Ieasel
+LFLAGS   = -L../mysource/lib/hmmer4/lib/easel
+IFLAGS   = -I../mysource/lib/hmmer4/lib/easel
 
 # Compiler configuration
 #
