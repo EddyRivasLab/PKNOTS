@@ -1,4 +1,4 @@
-/* viterbi.c (mdified)
+/* pk_cyk.c (mdified)
  * 
  * includes knots at second order in the zuker approximation
  */
@@ -8,9 +8,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include <easel.h>
-#include <esl_sq.h>
-#include <esl_sqio.h>
+#include "pknots_config.h"
+
+#include "easel.h"
+#include "esl_sq.h"
+#include "esl_sqio.h"
 
 #include "pknots.h"
 

@@ -3,12 +3,7 @@
  * ANSI prototypes for all external functions.
  * 
  */
-
 #include <stdio.h>
-
-#include <easel.h>
-#include <esl_sqio.h>
-#include <esl_wuss.h>
 
 extern float **AllocSCFG(void);
 extern int   **AllocIntSCFG(void);

@@ -8,6 +8,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "pknots_config.h"
+
 #include <easel.h>
 #include <esl_alphabet.h>
 #include <esl_getopts.h>
@@ -23,6 +25,7 @@
 #include "pk_rnaparam.h"
 #include "pk_rnaoutput.h"
 #include "pk_trace.h"
+
 #include "pk_util.h"
 #include "pk_version.h"
 
@@ -30,9 +33,14 @@
 #ifdef MEMDEBUG
 #include "dbmalloc.h"
 #endif
-              
-static char banner[] = 
-"PKNOTS: optimal minimum-energy RNA folding with pseudoknots and coaxial energies";
+
+static int pknots_banner(FILE *fp, char *progname, char *banner);
+static char usage[]  = "bin/pknots [-options] <infile> <outfile>\n\
+where <infile> is a fasta or Stockholm file with sequences to fold\n\
+results are saved to <outfile>. \n";
+static char banner[] = \
+"optimal minimum-energy RNA structure prediction with pseudoknots and coaxial energies";
+
 
 static ESL_OPTIONS options[] = {
  /* name                type             default  env_var range   toggles req   incompat help                                      docgroup */
@@ -49,13 +57,6 @@ static ESL_OPTIONS options[] = {
   {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
-static char usage[] = "\
-Usage: ./pknots [-options] <infile> <outfile>\n\
- where <infile> is a fasta or Stockholm file with sequences to fold\n\
- results are saved to <outfile>.\n\
- \n\
-"
-;
 
 int
 main(int argc, char **argv)
@@ -97,6 +98,10 @@ main(int argc, char **argv)
   if (esl_opt_ProcessCmdline(go, argc, argv) != eslOK) esl_fatal("Failed to parse command line: %s\n", go->errbuf);
   if (esl_opt_VerifyConfig(go)               != eslOK) esl_fatal("Failed to parse command line: %s\n", go->errbuf);
 
+  /* PKNOTS banner */
+  pknots_banner(stdout, argv[0], banner);
+  
+  /* help format: */
   if (esl_opt_GetBoolean(go, "-h") == TRUE) {
     puts(usage); 
     puts("\n  where options are:");
@@ -104,7 +109,7 @@ main(int argc, char **argv)
     return 0;
   }
   if (esl_opt_ArgNumber(go) != 2) esl_fatal("Incorrect number of command line arguments.\n%s\n", usage);
- 
+  
   approx            = esl_opt_GetBoolean(go, "-a");
   allow_coaxials    = esl_opt_GetBoolean(go, "-c");
   allow_pseudoknots = esl_opt_GetBoolean(go, "-k");
@@ -201,3 +206,24 @@ main(int argc, char **argv)
 
  
 
+static int
+pknots_banner(FILE *fp, char *progname, char *banner)
+{
+  char *appname = NULL;
+  int   status;
+
+  if ((status = esl_FileTail(progname, FALSE, &appname)) != eslOK) return status;
+
+  if (fprintf(fp, "# %s :: %s\n", appname, banner)                                               < 0) ESL_XEXCEPTION_SYS(eslEWRITE, "write failed");
+  if (fprintf(fp, "# PKNOTS %s (%s)\n", PKNOTS_VERSION, PKNOTS_DATE)                             < 0) ESL_XEXCEPTION_SYS(eslEWRITE, "write failed");
+  if (fprintf(fp, "# %s\n", PKNOTS_COPYRIGHT)                                                    < 0) ESL_XEXCEPTION_SYS(eslEWRITE, "write failed");
+  if (fprintf(fp, "# %s\n", PKNOTS_LICENSE)                                                      < 0) ESL_XEXCEPTION_SYS(eslEWRITE, "write failed");
+  if (fprintf(fp, "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n") < 0) ESL_XEXCEPTION_SYS(eslEWRITE, "write failed");
+
+  if (appname) free(appname);
+  return eslOK;
+
+ ERROR:
+  if (appname) free(appname);
+  return status;
+}

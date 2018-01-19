@@ -40,10 +40,16 @@
 #  13. AC_OUTPUT
 
 
-# Autoconf 2.61 has a bug in AC_FUNC_FSEEKO; don't use it.
+################################################################
+# 1. autoconf requirements
+################################################################
 AC_PREREQ(2.63)
-AC_INIT(eHMMER, 3.0, rivase@janelia.hhmi.org)
-AC_MSG_NOTICE([Configuring eHMMER for your system.])
+
+################################################################
+# 2. AC_INIT
+################################################################
+AC_INIT(PKNOTS, 1.1, elenarivas@fas.harvard.edu)
+AC_MSG_NOTICE([Configuring PKNOTS for your system.])
 
 # remember if the user is overriding CFLAGS
 if test x"$CFLAGS" = x; then 
@@ -52,51 +58,62 @@ fi
 
 ################################################################
 # 3. Info on the package
-#
-# The four AC_INIT args set these output variables and preprocessor symbols:
-#     PACKAGE_NAME      <package>     e.g. "HMMER"
-#     PACKAGE_VERSION   <version>     e.g. "3.0"
-#     PACKAGE_BUGREPORT <bug-report>  e.g. "eddys@janelia.hhmi.org"
-#     PACKAGE_TARNAME   <tarname>     e.g. "hmmer"
-# From them, it derives one more:
-#     PACKAGE_STRING    <package> <version>, e.g. "HMMER 3.0"
-# We also define additional variables:
-#     HMMER_DATE        release date: e.g. "January 2007"
-#     HMMER_COPYRIGHT   one-line copyright string
-#     HMMER_LICENSE     one-line license string
-#     HMMER_LICENSETAG  which license to bundle from Licenses/ subdirectory.
-#     HMMER_VERSION     copy of version code, e.g. "3.0"
-#     HMMER_URL         URL home for HMMER.
-# And we have to define the relevant package variables for Easel as well.
-#
-# We avoid using AC_INIT's PACKAGE_ variables anywhere, because we want to be able
-# to use HMMER as a library inside other packages, with no name clashes.
 ################################################################
+#
+# The four AC_INIT args above set the following output variables and preprocessor 
+# symbols:
+#     PACKAGE_NAME      <package>     e.g. "Easel"                      
+#     PACKAGE_VERSION   <version>     e.g. "0.2"
+#     PACKAGE_BUGREPORT <bug-report>  e.g. "sean@eddylab.org"
+#     PACKAGE_TARNAME   <tarname>     e.g. "easel"
+# From them, AC_INIT automatically derives one more:
+#     PACKAGE_STRING    <package> <version>, e.g. "Easel 0.2"
+# Then we define some of our own:
+#     EASEL_DATE        release date: e.g. "February 2005"
+#     EASEL_COPYRIGHT   one-line copyright string
+#     EASEL_LICENSE     one-line license string
+#     EASEL_LICENSETAG  which license to bundle from Licenses/ subdirectory.
+#     EASEL_URL         URL home for Easel.
+#
+# Because Easel is designed to be a library and must coexist with
+# packages that include it as a subdirectory (HMMER, Infernal...),
+# we don't want to use AC_INIT's PACKAGE_ variables as preprocessor
+# symbols to put version info into executables; we'll get name clashes,
+# plus we might want to have both Easel version info and main package
+# version info. So, we use the PACKAGE_ stuff to make a
+# new preprocessor symbol of our own:
+#     EASEL_VERSION    e.g. "1.9a"
+#
+PKNOTS_DATE="January 2018"
+PKNOTS_COPYRIGHT="Copyright (C) 2010-2018 Howard Hughes Medical Institute."
+PKNOTS_LICENSE="Freely distributed under the GNU General Public License (GPLv3)."
+PKNOTS_VERSION="v1.1"
+PKNOTS_URL="http://eddylab.org/"
+PKNOTS_ESLDIR="../mysource/lib/hmmer/easel"
 
-eHMMER_DATE="March 2010"
-eHMMER_COPYRIGHT="Copyright (C) 2010 Howard Hughes Medical Institute."
-eHMMER_LICENSE="Freely distributed under the GNU General Public License (GPLv3)."
-eHMMER_VERSION=$PACKAGE_VERSION
-eHMMER_URL="http://hmmer.org/"
-eHMMER_ESLDIR="easel"
-eHMMER_SADIR="libdivsufsort"
+PKNOTS_HOME="`pwd`"        #magic to get full path to current directory
+AC_PREFIX_DEFAULT("`pwd`") #changes the prefix default from /usr/bin to PKNOTS_HOME
+
+if  test "$prefix" = NONE ; then 
+  PKNOTS_BIN="`pwd`/bin"
+else
+  PKNOTS_BIN=${prefix}/bin
+fi
 
 # Output variables  (AC_OUTPUT replaces @var@ in input files, such as Makefiles)
-AC_SUBST(eHMMER_DATE)
-AC_SUBST(eHMMER_COPYRIGHT)
-AC_SUBST(eHMMER_LICENSE)
-AC_SUBST(eHMMER_VERSION)
-AC_SUBST(eHMMER_URL)
-AC_SUBST(eHMMER_ESLDIR)
-AC_SUBST(eHMMER_SADIR)
+AC_SUBST(PKNOTS_DATE)
+AC_SUBST(PKNOTS_COPYRIGHT)
+AC_SUBST(PKNOTS_LICENSE)
+AC_SUBST(PKNOTS_VERSION)
+AC_SUBST(PKNOTS_URL)
+AC_SUBST(PKNOTS_ESLDIR)
 
-
-# Preprocessor symbols (replace #undefs in p7config.h)
-AC_DEFINE_UNQUOTED(eHMMER_DATE,      "$HMMER_DATE")
-AC_DEFINE_UNQUOTED(eHMMER_COPYRIGHT, "$HMMER_COPYRIGHT")
-AC_DEFINE_UNQUOTED(eHMMER_LICENSE,   "$HMMER_LICENSE")
-AC_DEFINE_UNQUOTED(eHMMER_VERSION,   "$HMMER_VERSION")
-AC_DEFINE_UNQUOTED(eHMMER_URL,       "$HMMER_URL")
+# Preprocessor symbols (replace #undefs in pknots_config.h)
+AC_DEFINE_UNQUOTED(PKNOTS_DATE,      "$PKNOTS_DATE")
+AC_DEFINE_UNQUOTED(PKNOTS_COPYRIGHT, "$PKNOTS_COPYRIGHT")
+AC_DEFINE_UNQUOTED(PKNOTS_LICENSE,   "$PKNOTS_LICENSE")
+AC_DEFINE_UNQUOTED(PKNOTS_VERSION,   "$PKNOTS_VERSION")
+AC_DEFINE_UNQUOTED(PKNOTS_URL,       "$PKNOTS_URL")
 
 
 # Figure out what host we're compiling on.
@@ -119,14 +136,13 @@ AC_CANONICAL_HOST
 # Implements a sneaky if statement that wraps most of the configure.ac M4 code.
 #
 #if ((! test -d binaries) && test -d src); then 
-AC_MSG_NOTICE([Full HMMER source distribution - using full configuration])
+AC_MSG_NOTICE([Full PKNOTS source distribution])
 
 
 
 ################################################################
-# Process the ./configure command line
+# 4. Process ./configure command line options
 ################################################################
-
 # --enable-debugging      - set basic debugging (level 0)
 # --enable-debugging=x    - set debugging level to <x> (1-3)
 #
@@ -325,8 +341,8 @@ fi
 
 
 ################################################################
-# Checks for programs, including choice of compiler ${CC} and ${CFLAGS}.
-#
+# 5. Checks for programs, including ${CC} and its ${CFLAGS}
+################################################################
 AC_PROG_CC
 AC_PROG_INSTALL
 # MPI :  set @CC@ to mpicc, sets @MPILIBS@, defines HAVE_MPI. 
@@ -366,6 +382,54 @@ else
    # by AC_PROG_CC. Instead of rewriting AX_CC_MAXOPT, we fool
    # it.
 fi
+
+# Figure out how to generate PIC code for shared libraries
+# This sets @PIC_FLAGS@ output variable for Easel.
+ESL_PIC_FLAGS
+
+# If we're using SSE, figure out our @SIMD_CFLAGS@
+if test "$impl_choice" = "sse" && test "x$SIMD_CFLAGS" = x; then
+   case $ax_cv_c_compiler_vendor in
+   gnu)   AX_CHECK_COMPILER_FLAGS(-msse2,[SIMD_CFLAGS="-msse2"],[impl_choice=dummy]);;
+   intel) ;;
+   *)     ;;
+   esac
+fi
+if test "$enable_sse" = "yes" && test "$impl_choice" = dummy; then
+   AC_MSG_ERROR([SSE instructions are apparently not available; --enable-sse failed])
+fi
+
+# If we're using VMX/Altivec, figure out our @SIMD_CFLAGS@
+if test "$impl_choice" = "vmx"; then
+   if test "x$SIMD_CFLAGS" = x; then
+      if test "$GCC" = "yes"; then
+       	# -DFAKE__VEC__ is a workaround because gcc-3.3 does not
+	# #define __VEC__ with -maltivec.
+        AX_CHECK_COMPILER_FLAGS(-faltivec, [SIMD_CFLAGS="-faltivec"],
+	    [AX_CHECK_COMPILER_FLAGS(-maltivec -mabi=altivec,
+		[SIMD_CFLAGS="-maltivec -mabi=altivec"],
+#		[SIMD_CFLAGS="-maltivec -mabi=altivec -DFAKE__VEC__"],
+	        [AX_CHECK_COMPILER_FLAGS(-fvec, [SIMD_CFLAGS="-fvec"],
+		   [AC_MSG_ERROR([Need a version of gcc with -maltivec])])])])
+      elif test "${ax_cv_c_compiler_vendor}" = "ibm"; then
+        SIMD_CFLAGS=""
+        # if debugging is enabled and the xlc_arch flag is set, we need to
+        # set the qarch flag here.  if debugging is NOT enabled, the arch
+        # flag is set in AX_CC_MAXOPT.
+        if test "x$XLC_ARCH" != x; then
+           if test "x$enable_debugging" = xyes; then
+              AX_CHECK_COMPILER_FLAGS(-qarch=$XLC_ARCH, [SIMD_CFLAGS="-qarch=$XLC_ARCH"],[])
+           fi
+        fi
+        AX_CHECK_COMPILER_FLAGS(-qenablevmx, [SIMD_CFLAGS="$SIMD_CFLAGS -qenablevmx"],[])
+        AX_CHECK_COMPILER_FLAGS(-qaltivec, [SIMD_CFLAGS="$SIMD_CFLAGS -qaltivec"],[])
+      else
+        AX_CHECK_COMPILER_FLAGS(-faltivec, [SIMD_CFLAGS="-faltivec"],[])
+      fi
+   fi
+fi
+
+
 
 # Figure out how to generate PIC code for shared libraries
 # This sets @PIC_FLAGS@ output variable for Easel.
@@ -510,19 +574,6 @@ fi
 
 
 
-# Check if the linker supports library groups for recursive libraries
-AS_IF([test "x$impl_choice" != xno],
-      [AC_MSG_CHECKING([compiler support --start-group])
-       LDFLAGS_save=$LDFLAGS
-       LDFLAGS="-Wl,--start-group -Wl,--end-group $LDFLAGS"
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([],[]),
-           [AC_MSG_RESULT([yes])
-            AC_SUBST([GROUPHMMERLIBS], ["-Wl,--start-group -lhmmer -lhmmerimpl -Wl,--end-group"])],
-           [AC_MSG_RESULT([no])
-            AC_SUBST([GROUPHMMERLIBS], ["-lhmmer -lhmmerimpl"])])
-       LDFLAGS=$LDFLAGS_save],
-      [AC_SUBST([GROUPHMMERLIBS], ["-lhmmer"])])
-
 # Define HAVE_GZIP if gzip is in $PATH (or if HAVE_GZIP is already set)
 AC_PATH_PROG(HAVE_GZIP, "gzip", "no")
 if test "${HAVE_GZIP}" = "no"; then
@@ -531,8 +582,9 @@ else
   AC_DEFINE(HAVE_GZIP)
 fi
 
-# 5. Checks for libraries
-#
+################################################################
+# 6. Checks for libraries
+#################################################################
 LIBGSL=
 AS_IF([test "x$with_gsl" != xno],
       [AC_CHECK_LIB([gsl], [gsl_expm1], 
@@ -547,8 +599,10 @@ AS_IF([test "x$with_gsl" != xno],
            [-lgslcblas]
         )])
 
-# Checks for headers
-#
+
+################################################################
+# 7. Checks for headers
+################################################################
 AC_CHECK_HEADERS([sys/types.h sys/sysctl.h unistd.h stdint.h inttypes.h endian.h])
 
 # altivec.h requires the simd cflags
@@ -563,7 +617,14 @@ if test "$impl_choice" = "vmx"; then
    CPPFLAGS="$sre_save_CPPFLAGS"
 fi
 
-# Checks for types
+################################################################
+# 8. Checks for types
+################################################################
+#    - Define WORDS_BIGENDIAN on bigendian platforms.
+#    - Make sure we have C99 exact-size integer types; 
+#      ssi uses 16, 32, and 64-bit ints, and we
+#      use 8-bit unsigned chars for digitized sequence.
+#    - Make sure we have off_t.
 #
 AC_C_BIGENDIAN
 AC_TYPE_UINT8_T
@@ -572,8 +633,20 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_OFF_T
 
-# Checks for functions, defining HAVE_FOO when foo is found
-#
+################################################################
+# 9. Checks for structures - currently none
+#################################################################
+
+
+################################################################
+# 10. Checks for compiler characteristics
+#################################################################
+
+
+################################################################
+# 11. Checks for library functions: define HAVE_FOO
+################################################################
+
 AC_CHECK_FUNCS(mkstemp)
 AC_CHECK_FUNCS(popen)
 AC_CHECK_FUNCS(strcasecmp)
@@ -591,46 +664,41 @@ AC_CHECK_FUNCS(htons, , AC_CHECK_LIB(socket, htons))
 AC_CHECK_FUNCS(htonl, , AC_CHECK_LIB(socket, htonl))
 AC_FUNC_FSEEKO
 
-#
-# 11. System services
-#
+#################################################################
+# 12. System services
+#################################################################
 AC_SYS_LARGEFILE
 
 
-# Done.
-# Config subdirs and files (except main Makefile, which we defer)
-#
-if test -d release-notes; then
-  AC_CONFIG_FILES(release-notes/LICENSE.sh)
-fi
+#################################################################
+# 13. Write out esl_config.h header and the Makefiles
+#################################################################
+AC_CONFIG_HEADERS([
+src/pknots_config.h
+])
 
+AC_CONFIG_SUBDIRS(easel)
 
-################################################################
-# 13. AC_OUTPUT
-################################################################
-# remember that sneaky if statement that wraps the source
-# configuration? well, it ends here.
-#else
-#  AC_MSG_NOTICE([This is a precompiled binary distribution - using abbreviated config])
-#fi
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+Makefile
+src/Makefile
+../mysource/lib/hmmer/easel/Makefile
+])
+
+#################################################################
+# 14. et voila!
+#################################################################
 AC_OUTPUT
 
 echo "
 
-eHMMER configuration:
+PKNOTS configuration:
      compiler:             ${CC} ${CFLAGS} ${SIMD_CFLAGS} ${PTHREAD_CFLAGS} ${PIC_FLAGS}
      host:                 $host
      linker:               ${LDFLAGS}
-     libraries:            ${LIBS} ${LIBGSL} ${PTHREAD_LIBS}
-     DP implementation:    ${impl_choice}
+     libraries:            ${LIBS} $
 "
 
-if test "$impl_choice" = "dummy"; then
-  AC_MSG_WARN([We will compile the "dummy", a portable ANSI C reference implementation.])
-  AC_MSG_WARN([It is slow, about 100x slower than real H3, and is NOT intended for production use!])
-  AC_MSG_WARN([It only intended to show the basics of how HMMER3 works, portably.])
-fi
 
 
 

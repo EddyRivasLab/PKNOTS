@@ -34,7 +34,11 @@
 
 /* Dim4(x) = \sum_{j=0}^{x-1}\sum_{d=0}^{j}\sum_{d1=0}^{d}\sum_{d2=0}^{d-d1} 1 = x(x^3+6x^2+11x+6)/24
  */
-#define Dim4(x)    ((x) * ((x)*(x)*(x)+6*(x)*(x)+11*(x)+6) /24)
+/*  Bug 18 Jan 2018:
+ *  x^3+6x^2+11x+1 = (x+1)(x+2)(x+3) is always divisible by 6 but not necesarily by 24
+ *  S.Will fix, rewrite as x((x^3+6x^2+11x+6)/6)/4
+ */
+#define Dim4(x)    ((x) * (((x)*(x)*(x)+6*(x)*(x)+11*(x)+6) / 6) / 4)
 
 
 /* Cutoffs  
