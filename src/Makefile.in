@@ -100,7 +100,7 @@ SCRIPTS   = \
 all: libsrc.a ${PROGS} 
 
 
-${PROGS}: %: %.o ${OBJS} $
+${PROGS}: %: %.o ${OBJS} 
 	${QUIET_CC}${CC} ${CFLAGS} ${IFLAGS} ${LFLAGS} -o $@ $@.o ${OBJS} ${LIBS} 
 
 

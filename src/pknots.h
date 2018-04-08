@@ -14,32 +14,27 @@
  */
 /* Dim2len(x) = \sum_{j=0}^{x-1}\sum_{d=0}^{j} 1 = x(x+1)/2
  */
-#define Dim2len(x) ((x) * ((x)+1) / 2)
+#define Dim2len(x) (((size_t)x) * (((size_t)x)+1) / 2)
 
 /* Dim2j(x) = \sum_{d=0}^{x}\sum_{d1=0}^{d} 1 = (x+1)(x+2)/2
  */
-#define Dim2j(x)   (((x)+1) * ((x)+2) / 2)
+#define Dim2j(x)   ((((size_t)x)+1) * (((size_t)x)+2) / 2)
 
 /* Dim2d(x,y) = \sum_{d1=0}^{x}\sum_{d2=0}^{y-d1} 1 = (x+1)(2y-x+2)/2
  */
-#define Dim2d(x,y) (((x)+1) * ((y)*2-(x)+2) / 2)  
+#define Dim2d(x,y) ((((size_t)x)+1) * ((y)*2-((size_t)x)+2) / 2)  
 
 /* Dim3(x) = \sum_{j=0}^{x-1}\sum_{d=0}^{j}\sum_{d1=0}^{d} 1 = x(x^2+3x+2)/6
  */
-#define Dim3(x)    ((x) * ((x)*(x)+3*(x)+2) / 6)
+#define Dim3(x)    (((size_t)x) * (((size_t)x)*((size_t)x)+3*((size_t)x)+2) / 6)
 
 /* Dim3j(x) = \sum_{d=0}^{x}\sum_{d1=0}^{d}\sum_{d2=0}^{d-d1} 1 = (x+1)(x^2+5x+6)/6
  */
-#define Dim3j(x)   (((x)+1) * ((x)*(x)+5*(x)+6)  / 6)
+#define Dim3j(x)   ((((size_t)x)+1) * (((size_t)x)*((size_t)x)+5*((size_t)x)+6)  / 6)
 
-/* Dim4(x) = \sum_{j=0}^{x-1}\sum_{d=0}^{j}\sum_{d1=0}^{d}\sum_{d2=0}^{d-d1} 1 = x(x^3+6x^2+11x+6)/24
+/* Dim4(x) = \sum_{j=0}^{x-1}\sum_{d=0}^{j}\sum_{d1=0}^{d}\sum_{d2=0}^{d-d1} 1 = x(x^3+6x^2+11x+6)/24 = x (x+1) (x+2)(x+3)/24
  */
-/*  Bug 18 Jan 2018:
- *  x^3+6x^2+11x+1 = (x+1)(x+2)(x+3) is always divisible by 6 but not necesarily by 24
- *  S.Will fix, rewrite as x((x^3+6x^2+11x+6)/6)/4
- */
-#define Dim4(x)    ((x) * (((x)*(x)*(x)+6*(x)*(x)+11*(x)+6) / 6) / 4)
-
+#define Dim4(x)    (((size_t)x) * ((((size_t)x)*((size_t)x)*((size_t)x)+6*((size_t)x)*((size_t)x)+11*((size_t)x)+6) /6) /4)
 
 /* Cutoffs  
  */

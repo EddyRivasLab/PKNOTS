@@ -72,7 +72,6 @@ StructurePredictkn_2IS(FILE *outf, ESL_SQ *sq, int len, struct rnapar_2 *rnapar,
  if (allow_pseudoknots) {
     Alloc_Mgp(len, &whx, &vhx, &zhx, &yhx);
     Pattern_Mgp(len, whx, vhx, zhx, yhx); /* for debugging */
- 
     FillMtx(dsq, len, rnapar, icfg,  wx, wbx, vx, vp, whx, vhx, zhx, yhx, allow_coaxials, approx);
   }
   else
@@ -225,71 +224,83 @@ Free_Mtx(int len, int **wx, int **wbx, int **vx, int *vp)
  *           dies and exits.
  */
 void
-Alloc_Mgp(int len, int *****ret_whx, int *****ret_vhx, 
-		int *****ret_zhx, int *****ret_yhx)
+Alloc_Mgp(int len, int *****ret_whx, int *****ret_vhx, int *****ret_zhx, int *****ret_yhx)
 {
   int ****whx, ****vhx, ****zhx, ****yhx;
   int j, d, d1;
-  
+  size_t dim2len = Dim2len(len);
+  size_t dim3    = Dim3(len);
+  size_t dim4    = Dim4(len);
+  size_t dim2lenj, dim3j, dim4j;
+  size_t dim3jd, dimjd, dim;
+
   /* gap matrices, whx(j,d,d1,d2), vhx(j,d,d1,d2), zhx(j,d,d1,d2), yhx(j,d,d1,d2).
    * fastest varying index is j.
    */
- if ((whx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
+ if ((whx = (int ****) malloc (sizeof(int ***) * len))       == NULL)
     pk_fatal("malloc failed in whx");
-  if ((whx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    pk_fatal("malloc failed in whx[0]");
-  if ((whx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    pk_fatal("malloc failed in whx[0][0]");
-  if ((whx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    pk_fatal("malloc failed in whx[0][0][0]");
+  if ((whx[0] = (int ***) malloc (sizeof(int **) * dim2len)) == NULL)
+    pk_fatal("malloc failed in whx");
+  if ((whx[0][0] = (int **) malloc (sizeof(int *) * dim3))   == NULL)
+    pk_fatal("malloc failed in whx");
+  if ((whx[0][0][0] = (int *) malloc (sizeof(int) * dim4))   == NULL)
+    pk_fatal("malloc failed in whx");
   
-  if ((vhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
+  if ((vhx = (int ****) malloc (sizeof(int ***) * len))      == NULL)
     pk_fatal("malloc failed in vhx");
-  if ((vhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    pk_fatal("malloc failed in vhx[0]");
-  if ((vhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    pk_fatal("malloc failed in vhx[0][0]");
-  if ((vhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    pk_fatal("malloc failed in vhx[0][0][0]");
+  if ((vhx[0] = (int ***) malloc (sizeof(int **) * dim2len)) == NULL)
+    pk_fatal("malloc failed in vhx");
+  if ((vhx[0][0] = (int **) malloc (sizeof(int *) * dim3))   == NULL)
+    pk_fatal("malloc failed in vhx");
+  if ((vhx[0][0][0] = (int *) malloc (sizeof(int) * dim4))   == NULL)
+    pk_fatal("malloc failed in vhx");
   
-  if ((zhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
+  if ((zhx = (int ****) malloc (sizeof(int ***) * len))      == NULL)
     pk_fatal("malloc failed in zhx");
-  if ((zhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    pk_fatal("malloc failed in zhx[0]");
-  if ((zhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    pk_fatal("malloc failed in zhx[0][0]");
-  if ((zhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    pk_fatal("malloc failed in zhx[0][0][0]");
+  if ((zhx[0] = (int ***) malloc (sizeof(int **) * dim2len)) == NULL)
+    pk_fatal("malloc failed in zhx");
+  if ((zhx[0][0] = (int **) malloc (sizeof(int *) * dim3))   == NULL)
+    pk_fatal("malloc failed in zhx");
+  if ((zhx[0][0][0] = (int *) malloc (sizeof(int) * dim4))   == NULL)
+    pk_fatal("malloc failed in zhx");
   
-  if ((yhx = (int ****) malloc (sizeof(int ***) * len)) == NULL)
+  if ((yhx = (int ****) malloc (sizeof(int ***) * len))      == NULL)
     pk_fatal("malloc failed in yhx");
-  if ((yhx[0] = (int ***) malloc (sizeof(int **) * Dim2len(len))) == NULL)
-    pk_fatal("malloc failed in yhx[0]");
-  if ((yhx[0][0] = (int **) malloc (sizeof(int *) * Dim3(len))) == NULL)
-    pk_fatal("malloc failed in yhx[0][0]");
-  if ((yhx[0][0][0] = (int *) malloc (sizeof(int) * Dim4(len))) == NULL)
-    pk_fatal("malloc failed in yhx[0][0][0]");
+  if ((yhx[0] = (int ***) malloc (sizeof(int **) * dim2len)) == NULL)
+    pk_fatal("malloc failed in yhx");
+  if ((yhx[0][0] = (int **) malloc (sizeof(int *) * dim3))   == NULL)
+    pk_fatal("malloc failed in yhx");
+  if ((yhx[0][0][0] = (int *) malloc (sizeof(int) * dim4))   == NULL)
+    pk_fatal("malloc failed in yhx");
   
   for (j = 0; j < len; j++)
     {
-      whx[j]  =  whx[0] + Dim2len(j);                          
-      vhx[j]  =  vhx[0] + Dim2len(j);                          
-      zhx[j]  =  zhx[0] + Dim2len(j);                          
-      yhx[j]  =  yhx[0] + Dim2len(j);   
-      
+      dim2lenj = Dim2len(j); 
+      dim3j    = Dim3(j);
+      dim4j    = Dim4(j);
+
+      whx[j]   =  whx[0] + dim2lenj;                          
+      vhx[j]   =  vhx[0] + dim2lenj;                          
+      zhx[j]   =  zhx[0] + dim2lenj;                          
+      yhx[j]   =  yhx[0] + dim2lenj;   
+       
       for (d = 0; d <= j; d++)
         {
-	  whx[j][d]  =  whx[0][0] + Dim3(j) + Dim2j(d-1);                          
-	  vhx[j][d]  =  vhx[0][0] + Dim3(j) + Dim2j(d-1);                          
-	  zhx[j][d]  =  zhx[0][0] + Dim3(j) + Dim2j(d-1);                          
-	  yhx[j][d]  =  yhx[0][0] + Dim3(j) + Dim2j(d-1);   
+	  dimjd  =  dim3j + Dim2j(d-1);
+	  dim3jd = Dim3j(d-1);
+	  
+	  whx[j][d]  =  whx[0][0] + dimjd;                          
+	  vhx[j][d]  =  vhx[0][0] + dimjd;                          
+	  zhx[j][d]  =  zhx[0][0] + dimjd;                          
+	  yhx[j][d]  =  yhx[0][0] + dimjd;   
 	  
 	  for (d1 = 0; d1 <= d; d1++)
-	    {   
-	      whx[j][d][d1]  =  whx[0][0][0] + Dim4(j) + Dim3j(d-1) + Dim2d(d1-1,d);              
-	      vhx[j][d][d1]  =  vhx[0][0][0] + Dim4(j) + Dim3j(d-1) + Dim2d(d1-1,d);              
-	      zhx[j][d][d1]  =  zhx[0][0][0] + Dim4(j) + Dim3j(d-1) + Dim2d(d1-1,d);            
-	      yhx[j][d][d1]  =  yhx[0][0][0] + Dim4(j) + Dim3j(d-1) + Dim2d(d1-1,d);  
+	    {
+	      dim = dim4j + dim3jd + Dim2d(d1-1,d);
+	      whx[j][d][d1]  =  whx[0][0][0] + dim;              
+	      vhx[j][d][d1]  =  vhx[0][0][0] + dim;              
+	      zhx[j][d][d1]  =  zhx[0][0][0] + dim;            
+	      yhx[j][d][d1]  =  yhx[0][0][0] + dim;  
 	    }
 	}
     }
