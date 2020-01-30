@@ -1,0 +1,34 @@
+Brief installation instructions.
+
+PKNOTS 1.1	   January 2018
+http://rivaslab.org/software
+
+----------------------------------------------------------------------------
+Starting from a source distribution, pknots_v1.1/:
+
+ move into new directory:   cd pknots_v1.1
+ configure:                 ./configure
+ build:                     make
+ install:		    make install
+
+The newly compiled binary "pknots" is in the pknots_v1.1/bin directory.
+You can run it from there.
+
+The default installation produces executable: pknots_v1.1/bin/pknots
+
+----------------------------------------------------------------------------
+Starting from a Git Repo: 
+
+If you have cloned the PKNOTS Git repository, there's
+some additional stuff you need to do one-time-only in your new working
+directory.
+
+First you need to clone easel:
+  cd lib
+  git clone https://github.com/EddyRivasLab/easel.git
+
+
+-------------------------------------------------------------
+The PKNOTS development team
+Elena Rivas
+elenarivas@fas.harvard.edu
