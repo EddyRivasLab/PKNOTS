@@ -89,7 +89,7 @@ PKNOTS_COPYRIGHT="Copyright (C) 2010-2018 Howard Hughes Medical Institute."
 PKNOTS_LICENSE="Freely distributed under the GNU General Public License (GPLv3)."
 PKNOTS_VERSION="v1.1"
 PKNOTS_URL="http://eddylab.org/"
-PKNOTS_ESLDIR="../mysource/lib/hmmer/easel"
+PKNOTS_ESLDIR="lib/easel"
 
 PKNOTS_HOME="`pwd`"        #magic to get full path to current directory
 AC_PREFIX_DEFAULT("`pwd`") #changes the prefix default from /usr/bin to PKNOTS_HOME
@@ -677,12 +677,12 @@ AC_CONFIG_HEADERS([
 src/pknots_config.h
 ])
 
-AC_CONFIG_SUBDIRS(easel)
+AC_CONFIG_SUBDIRS(lib/easel)
 
 AC_CONFIG_FILES([
 Makefile
 src/Makefile
-../mysource/lib/hmmer/easel/Makefile
+lib/easel/Makefile
 ])
 
 #################################################################

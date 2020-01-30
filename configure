@@ -732,7 +732,7 @@ CPPFLAGS
 MPICC
 CPP
 PIC_FLAGS'
-ac_subdirs_all='easel'
+ac_subdirs_all='lib/easel'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -2309,7 +2309,7 @@ PKNOTS_COPYRIGHT="Copyright (C) 2010-2018 Howard Hughes Medical Institute."
 PKNOTS_LICENSE="Freely distributed under the GNU General Public License (GPLv3)."
 PKNOTS_VERSION="v1.1"
 PKNOTS_URL="http://eddylab.org/"
-PKNOTS_ESLDIR="../mysource/lib/hmmer/easel"
+PKNOTS_ESLDIR="lib/easel"
 
 PKNOTS_HOME="`pwd`"        #magic to get full path to current directory
  #changes the prefix default from /usr/bin to PKNOTS_HOME
@@ -7762,10 +7762,10 @@ ac_config_headers="$ac_config_headers src/pknots_config.h"
 
 
 
-subdirs="$subdirs easel"
+subdirs="$subdirs lib/easel"
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile ../mysource/lib/hmmer/easel/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile lib/easel/Makefile"
 
 
 #################################################################
@@ -8465,7 +8465,7 @@ do
     "src/pknots_config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/pknots_config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "../mysource/lib/hmmer/easel/Makefile") CONFIG_FILES="$CONFIG_FILES ../mysource/lib/hmmer/easel/Makefile" ;;
+    "lib/easel/Makefile") CONFIG_FILES="$CONFIG_FILES lib/easel/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

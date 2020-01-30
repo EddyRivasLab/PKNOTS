@@ -45,8 +45,8 @@ LIBTOOLS  = @LIBTOOLS@
 
 LIBS      = -leasel -lm
 
-IFLAGS   = -I../../mysource/lib/hmmer/easel -I../src 
-LFLAGS   = -L../../mysource/lib/hmmer/easel -L../src 
+IFLAGS   = -I../lib/easel -I../src 
+LFLAGS   = -L../lib/easel -L../src 
 
 
 # beautification magic stolen from git
